@@ -19,13 +19,13 @@ type Service interface {
 }
 
 // RunWithGracefulShutdown runs svc until SIGINT/SIGTERM, then calls Shutdown with a deadline.
-func RunWithGracefulShutdown(logger *slog.Logger, svc Service) {
+func RunWithGracefulShutdown(svc Service) {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	go func() {
 		if err := svc.Run(); err != nil {
-			logger.Error("service crashed", slog.String("error", fmt.Sprintf("%+v", err)))
+			slog.Error("service crashed", slog.String("error", fmt.Sprintf("%+v", err)))
 			os.Exit(1)
 		}
 	}()
@@ -36,8 +36,8 @@ func RunWithGracefulShutdown(logger *slog.Logger, svc Service) {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 
-	logger.Info("shutting down gracefully")
+	slog.Info("shutting down gracefully")
 	if err := svc.Shutdown(shutdownCtx); err != nil {
-		logger.Error("graceful shutdown failed", slog.String("error", fmt.Sprintf("%+v", err)))
+		slog.Error("graceful shutdown failed", slog.String("error", fmt.Sprintf("%+v", err)))
 	}
 }

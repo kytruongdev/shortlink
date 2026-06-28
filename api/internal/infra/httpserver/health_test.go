@@ -1,26 +1,18 @@
-package httpserver_test
+package httpserver
 
 import (
 	"context"
 	"errors"
-	"io"
-	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/kytruongdev/shortlink/internal/infra/httpserver"
 )
 
 type fakePinger struct{ err error }
 
 func (f fakePinger) Ping(context.Context) error { return f.err }
-
-func discardLogger() *slog.Logger {
-	return slog.New(slog.NewTextHandler(io.Discard, nil))
-}
 
 func TestHealthRoutes(t *testing.T) {
 	tcs := map[string]struct {
@@ -36,7 +28,7 @@ func TestHealthRoutes(t *testing.T) {
 
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
-			mux := httpserver.New(discardLogger(), fakePinger{tc.pingErr}, nil)
+			mux := New(fakePinger{tc.pingErr}, nil)
 
 			rec := httptest.NewRecorder()
 			mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, tc.path, nil))
