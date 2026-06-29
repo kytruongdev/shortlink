@@ -4,7 +4,8 @@
 -include .env
 export
 
-COMPOSE      := docker compose -f build/docker-compose.local.yml -p shortlink
+ENV          ?= local
+COMPOSE      := docker compose -f build/docker-compose.$(ENV).yml -p shortlink $(if $(filter prod,$(ENV)),--env-file .env.prod,)
 ENV_FILE     := .env
 
 DATABASE_URL ?= postgres://shortlink:shortlink@localhost:5432/shortlink?sslmode=disable
@@ -34,12 +35,17 @@ test: migrate
 # =========================================================
 # Stack lifecycle
 # =========================================================
-.PHONY: up down logs ps db
+# Local: make up | make down | make reset (wipes data)
+# Prod : make up ENV=prod | make logs ENV=prod | make down ENV=prod (keeps data)
+.PHONY: up down reset logs ps db
 
 up:
-	$(COMPOSE) up --build -d
+	$(COMPOSE) up -d --build
 
 down:
+	$(COMPOSE) down
+
+reset:
 	$(COMPOSE) down -v
 
 logs:
