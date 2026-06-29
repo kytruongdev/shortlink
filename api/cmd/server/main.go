@@ -29,7 +29,7 @@ func main() {
 	// Composition root: build each resource here, inject downward.
 	cfg := config.MustLoad()
 
-	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: cfg.LogLevel})))
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: cfg.LogLevel, AddSource: true})))
 
 	pool := pg.MustConnect(cfg.DatabaseURL)
 	defer pool.Close()

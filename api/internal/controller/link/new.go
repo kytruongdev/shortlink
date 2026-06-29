@@ -10,6 +10,7 @@ import (
 // Controller is the link use-case interface.
 type Controller interface {
 	Encode(ctx context.Context, rawURL string) (model.Link, error)
+	Decode(ctx context.Context, code string) (model.Link, error)
 }
 
 type impl struct {

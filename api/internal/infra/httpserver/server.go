@@ -53,7 +53,7 @@ func requestLogger() func(http.Handler) http.Handler {
 				slog.String("method", r.Method),
 				slog.String("path", r.URL.Path),
 				slog.Int("status", ww.Status()),
-				slog.Duration("latency", time.Since(start)),
+				slog.Float64("latency_ms", float64(time.Since(start).Microseconds())/1000),
 				slog.String("request_id", middleware.GetReqID(r.Context())),
 			)
 		})

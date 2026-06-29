@@ -22,6 +22,63 @@ func (_m *MockController) EXPECT() *MockController_Expecter {
 	return &MockController_Expecter{mock: &_m.Mock}
 }
 
+// Decode provides a mock function with given fields: ctx, code
+func (_m *MockController) Decode(ctx context.Context, code string) (model.Link, error) {
+	ret := _m.Called(ctx, code)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Decode")
+	}
+
+	var r0 model.Link
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (model.Link, error)); ok {
+		return rf(ctx, code)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) model.Link); ok {
+		r0 = rf(ctx, code)
+	} else {
+		r0 = ret.Get(0).(model.Link)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, code)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockController_Decode_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Decode'
+type MockController_Decode_Call struct {
+	*mock.Call
+}
+
+// Decode is a helper method to define mock.On call
+//   - ctx context.Context
+//   - code string
+func (_e *MockController_Expecter) Decode(ctx interface{}, code interface{}) *MockController_Decode_Call {
+	return &MockController_Decode_Call{Call: _e.mock.On("Decode", ctx, code)}
+}
+
+func (_c *MockController_Decode_Call) Run(run func(ctx context.Context, code string)) *MockController_Decode_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockController_Decode_Call) Return(_a0 model.Link, _a1 error) *MockController_Decode_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockController_Decode_Call) RunAndReturn(run func(context.Context, string) (model.Link, error)) *MockController_Decode_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Encode provides a mock function with given fields: ctx, rawURL
 func (_m *MockController) Encode(ctx context.Context, rawURL string) (model.Link, error) {
 	ret := _m.Called(ctx, rawURL)

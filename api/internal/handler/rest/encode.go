@@ -1,6 +1,8 @@
 package rest
 
 import (
+	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -21,6 +23,8 @@ type encodeResponse struct {
 
 // Encode handles POST /api/v1/encode.
 func (h *Handler) Encode(w http.ResponseWriter, r *http.Request) error {
+	slog.Debug("starting Encode")
+
 	const (
 		codeInvalidBody = "INVALID_BODY"
 		codeInvalidURL  = "INVALID_URL"
@@ -28,6 +32,7 @@ func (h *Handler) Encode(w http.ResponseWriter, r *http.Request) error {
 
 	var req encodeRequest
 	if err := httpserver.DecodeJSON(w, r, &req); err != nil {
+		slog.Warn("failed to decode json body", slog.String("error", fmt.Sprintf("%+v", err)))
 		return apperror.BadRequest(codeInvalidBody, "invalid request body")
 	}
 
@@ -40,6 +45,8 @@ func (h *Handler) Encode(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
+
+	slog.Debug("finished Encode")
 
 	return httpserver.WriteJSON(w, http.StatusOK, encodeResponse{
 		ShortURL: h.baseURL + "/" + link.Code,

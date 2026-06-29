@@ -23,7 +23,6 @@ func (i *impl) Encode(ctx context.Context, rawURL string) (model.Link, error) {
 
 	existing, err := i.repo.GetByNormalizedURL(ctx, normalized)
 	if err == nil {
-		slog.Debug("dedup hit, returning existing link", slog.String("code", existing.Code))
 		return existing, nil
 	}
 	if !errors.Is(err, repolink.ErrNotFound) {
@@ -42,7 +41,6 @@ func (i *impl) Encode(ctx context.Context, rawURL string) (model.Link, error) {
 			NormalizedURL: normalized,
 		})
 		if createErr == nil {
-			slog.Debug("created new link", slog.String("code", code), slog.Int("attempt", attempt+1))
 			return link, nil
 		}
 		if !errors.Is(createErr, repolink.ErrConflict) {
@@ -51,7 +49,6 @@ func (i *impl) Encode(ctx context.Context, rawURL string) (model.Link, error) {
 
 		// Conflict means a code collision (retry) or a concurrent insert of the same URL (return it).
 		if found, getErr := i.repo.GetByNormalizedURL(ctx, normalized); getErr == nil {
-			slog.Debug("concurrent insert detected, returning existing link", slog.String("code", found.Code))
 			return found, nil
 		}
 		slog.Warn("short code collision, retrying", slog.String("code", code), slog.Int("attempt", attempt+1))
