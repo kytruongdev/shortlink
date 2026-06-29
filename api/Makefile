@@ -54,7 +54,7 @@ db:
 # =========================================================
 # Migration / Codegen
 # =========================================================
-.PHONY: migrate migration sqlc
+.PHONY: migrate migration sqlc swag
 
 migrate:
 	$(COMPOSE) run --rm migrate
@@ -68,3 +68,6 @@ migration:
 
 sqlc:
 	sqlc generate
+
+swag:
+	swag init -g cmd/server/main.go -o internal/docs

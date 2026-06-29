@@ -1,0 +1,100 @@
+basePath: /api/v1
+definitions:
+  rest.decodeRequest:
+    properties:
+      short_url:
+        type: string
+    type: object
+  rest.decodeResponse:
+    properties:
+      long_url:
+        type: string
+    type: object
+  rest.encodeRequest:
+    properties:
+      long_url:
+        type: string
+    type: object
+  rest.encodeResponse:
+    properties:
+      code:
+        type: string
+      short_url:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: 'URL shortening service: encode a long URL to a short code, decode
+    it back.'
+  title: ShortLink API
+  version: "1.0"
+paths:
+  /decode:
+    post:
+      consumes:
+      - application/json
+      description: Decode a short URL or bare code back to the original URL.
+      parameters:
+      - description: Short URL or code
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/rest.decodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.decodeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Resolve a short URL
+      tags:
+      - links
+  /encode:
+    post:
+      consumes:
+      - application/json
+      description: Encode a long URL into a short code and persist the mapping.
+      parameters:
+      - description: URL to shorten
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/rest.encodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.encodeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Shorten a URL
+      tags:
+      - links
+swagger: "2.0"

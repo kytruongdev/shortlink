@@ -22,6 +22,16 @@ type encodeResponse struct {
 }
 
 // Encode handles POST /api/v1/encode.
+// @Summary      Shorten a URL
+// @Description  Encode a long URL into a short code and persist the mapping.
+// @Tags         links
+// @Accept       json
+// @Produce      json
+// @Param        request  body      encodeRequest  true  "URL to shorten"
+// @Success      200      {object}  encodeResponse
+// @Failure      400      {object}  map[string]string
+// @Failure      500      {object}  map[string]string
+// @Router       /encode  [post]
 func (h *Handler) Encode(w http.ResponseWriter, r *http.Request) error {
 	slog.Debug("starting Encode")
 

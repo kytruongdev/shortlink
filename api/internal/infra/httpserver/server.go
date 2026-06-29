@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
 const requestTimeout = 5 * time.Second
@@ -21,6 +22,8 @@ func New(readinessDB Pinger, registerRoutes func(chi.Router)) *chi.Mux {
 
 	r.Get("/healthz", HandlerErr(liveness))
 	r.Get("/readyz", HandlerErr(readiness(readinessDB)))
+
+	r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL("/swagger/doc.json")))
 
 	if registerRoutes != nil {
 		r.Group(registerRoutes)
