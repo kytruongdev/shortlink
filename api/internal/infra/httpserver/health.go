@@ -20,13 +20,13 @@ func liveness(w http.ResponseWriter, _ *http.Request) error {
 }
 
 // readiness returns 200 when the DB is reachable, else 503; the error is logged, not exposed.
-func readiness(db Pinger, logger *slog.Logger) HandlerFunc {
+func readiness(db Pinger) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		ctx, cancel := context.WithTimeout(r.Context(), readinessTimeout)
 		defer cancel()
 
 		if err := db.Ping(ctx); err != nil {
-			logger.WarnContext(ctx, "readiness check failed", slog.String("error", err.Error()))
+			slog.Warn("readiness check failed", slog.String("error", err.Error()))
 			return WriteJSON(w, http.StatusServiceUnavailable, map[string]string{"status": "unavailable"})
 		}
 

@@ -22,7 +22,5 @@ jobs:
         run: go vet ./...
       - name: build
         run: go build ./...
-      - name: unit tests
+      - name: tests
         run: make test
-      - name: integration tests
-        run: make test-integration

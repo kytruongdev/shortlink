@@ -1,0 +1,18 @@
+with-expecter: true
+packages:
+  github.com/kytruongdev/shortlink/internal/repository/link:
+    config:
+      dir: "internal/repository/link"
+      filename: "mock_Repository.go"
+      mockname: "MockRepository"
+      inpackage: true
+    interfaces:
+      Repository:
+  github.com/kytruongdev/shortlink/internal/controller/link:
+    config:
+      dir: "internal/controller/link"
+      filename: "mock_Controller.go"
+      mockname: "MockController"
+      inpackage: true
+    interfaces:
+      Controller:

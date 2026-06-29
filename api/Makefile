@@ -26,13 +26,10 @@ run: require-env
 # =========================================================
 # Test
 # =========================================================
-.PHONY: test test-integration
+.PHONY: test
 
-test:
-	go test ./... -race -count=1
-
-test-integration: migrate
-	DATABASE_URL="$(DATABASE_URL)" go test -tags=integration ./...
+test: migrate
+	PG_URL="$(DATABASE_URL)" go test ./... -race -count=1
 
 # =========================================================
 # Stack lifecycle

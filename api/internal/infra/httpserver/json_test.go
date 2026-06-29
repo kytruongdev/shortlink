@@ -1,4 +1,4 @@
-package httpserver_test
+package httpserver
 
 import (
 	"net/http"
@@ -8,8 +8,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"github.com/kytruongdev/shortlink/internal/infra/httpserver"
 )
 
 func TestDecodeJSON(t *testing.T) {
@@ -21,7 +19,7 @@ func TestDecodeJSON(t *testing.T) {
 		"valid":          {body: `{"url":"https://x.com"}`, wantURL: "https://x.com"},
 		"unknown field":  {body: `{"url":"x","extra":1}`, wantErr: true},
 		"malformed json": {body: `{`, wantErr: true},
-		"oversized body": {body: `{"url":"` + strings.Repeat("a", 1<<20+10) + `"}`, wantErr: true},
+		"oversized body": {body: `{"url":"` + strings.Repeat("a", maxBodyBytes+10) + `"}`, wantErr: true},
 	}
 
 	for name, tc := range tcs {
@@ -31,7 +29,7 @@ func TestDecodeJSON(t *testing.T) {
 				URL string `json:"url"`
 			}
 
-			err := httpserver.DecodeJSON(httptest.NewRecorder(), r, &p)
+			err := DecodeJSON(httptest.NewRecorder(), r, &p)
 			if tc.wantErr {
 				require.Error(t, err)
 				return

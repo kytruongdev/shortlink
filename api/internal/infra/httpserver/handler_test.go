@@ -1,4 +1,4 @@
-package httpserver_test
+package httpserver
 
 import (
 	"errors"
@@ -7,13 +7,11 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/kytruongdev/shortlink/internal/infra/httpserver"
 )
 
 func TestHandlerErr(t *testing.T) {
 	tcs := map[string]struct {
-		fn               httpserver.HandlerFunc
+		fn               HandlerFunc
 		wantStatus       int
 		wantBodyContains string
 	}{
@@ -30,7 +28,7 @@ func TestHandlerErr(t *testing.T) {
 
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
-			h := httpserver.HandlerErr(discardLogger(), tc.fn)
+			h := HandlerErr(tc.fn)
 
 			rec := httptest.NewRecorder()
 			h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/", nil))
