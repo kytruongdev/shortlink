@@ -1,4 +1,4 @@
-package config_test
+package config
 
 import (
 	"log/slog"
@@ -6,8 +6,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"github.com/kytruongdev/shortlink/internal/config"
 )
 
 func TestLoad(t *testing.T) {
@@ -27,15 +25,15 @@ func TestLoad(t *testing.T) {
 	tcs := map[string]struct {
 		env     map[string]string
 		wantErr bool
-		want    config.Config
+		want    Config
 	}{
 		"valid": {
 			env:  env(nil),
-			want: config.Config{Port: "8080", DatabaseURL: "postgres://db", BaseURL: "http://x", LogLevel: slog.LevelInfo},
+			want: Config{Port: "8080", DatabaseURL: "postgres://db", BaseURL: "http://x", LogLevel: slog.LevelInfo},
 		},
 		"log level debug": {
 			env:  env(map[string]string{"LOG_LEVEL": "debug"}),
-			want: config.Config{Port: "8080", DatabaseURL: "postgres://db", BaseURL: "http://x", LogLevel: slog.LevelDebug},
+			want: Config{Port: "8080", DatabaseURL: "postgres://db", BaseURL: "http://x", LogLevel: slog.LevelDebug},
 		},
 		"missing PORT":         {env: env(map[string]string{"PORT": ""}), wantErr: true},
 		"missing DATABASE_URL": {env: env(map[string]string{"DATABASE_URL": ""}), wantErr: true},
@@ -52,7 +50,7 @@ func TestLoad(t *testing.T) {
 				t.Setenv(k, v)
 			}
 
-			got, err := config.Load()
+			got, err := Load()
 			if tc.wantErr {
 				require.Error(t, err)
 				return
