@@ -21,6 +21,16 @@ type decodeResponse struct {
 }
 
 // Decode handles POST /api/v1/decode: short URL (or bare code) in, original URL out.
+// @Summary      Resolve a short URL
+// @Description  Decode a short URL or bare code back to the original URL.
+// @Tags         links
+// @Accept       json
+// @Produce      json
+// @Param        request  body      decodeRequest  true  "Short URL or code"
+// @Success      200      {object}  decodeResponse
+// @Failure      400      {object}  map[string]string
+// @Failure      404      {object}  map[string]string
+// @Router       /decode  [post]
 func (h *Handler) Decode(w http.ResponseWriter, r *http.Request) error {
 	slog.Debug("starting Decode")
 
