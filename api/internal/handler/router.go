@@ -26,5 +26,6 @@ func (rtr Router) Routes(r chi.Router) {
 func (rtr Router) public(r chi.Router) {
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Post("/encode", httpserver.HandlerErr(rtr.restHandler.Encode))
+		r.Post("/decode", httpserver.HandlerErr(rtr.restHandler.Decode))
 	})
 }
