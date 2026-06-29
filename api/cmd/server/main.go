@@ -16,6 +16,8 @@ import (
 	"github.com/kytruongdev/shortlink/internal/infra/db/pg"
 	"github.com/kytruongdev/shortlink/internal/infra/httpserver"
 	repolink "github.com/kytruongdev/shortlink/internal/repository/link"
+
+	_ "github.com/kytruongdev/shortlink/internal/docs" // registers the OpenAPI spec served at /swagger
 )
 
 const (
@@ -25,6 +27,10 @@ const (
 	idleTimeout       = 60 * time.Second
 )
 
+// @title       ShortLink API
+// @version     1.0
+// @description URL shortening service: encode a long URL to a short code, decode it back.
+// @BasePath    /api/v1
 func main() {
 	// Composition root: build each resource here, inject downward.
 	cfg := config.MustLoad()
