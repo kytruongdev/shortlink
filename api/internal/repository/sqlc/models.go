@@ -15,6 +15,8 @@ type Link struct {
 	OriginalUrl   string
 	NormalizedUrl string
 	CreatedAt     time.Time
+	UserID        *uuid.UUID
+	CreatorIp     *string
 }
 
 type RefreshToken struct {
