@@ -1,6 +1,10 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 const (
 	// ShortCodeLength is the number of base62 characters in a generated code.
@@ -15,4 +19,6 @@ type Link struct {
 	OriginalURL   string
 	NormalizedURL string
 	CreatedAt     time.Time
+	UserID        *uuid.UUID // nil for anonymous links
+	CreatorIP     *string    // set for anonymous links, for per-IP quota
 }

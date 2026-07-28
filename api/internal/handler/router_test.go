@@ -32,7 +32,7 @@ func TestRoutes(t *testing.T) {
 		Return(model.Link{OriginalURL: longURL}, nil).Once()
 
 	authHandler := rest.NewAuth(ctrlauth.NewMockController(t), false, time.Hour)
-	srv := httpserver.New(nil, New(rest.New(ctrl, baseURL), authHandler).Routes)
+	srv := httpserver.New(nil, New(rest.New(ctrl, baseURL), authHandler, []byte("test-secret")).Routes)
 
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/"+code, nil)

@@ -19,6 +19,8 @@ func (i *impl) Create(ctx context.Context, link model.Link) (model.Link, error) 
 		Code:          link.Code,
 		OriginalUrl:   link.OriginalURL,
 		NormalizedUrl: link.NormalizedURL,
+		UserID:        link.UserID,
+		CreatorIp:     link.CreatorIP,
 	})
 	if err != nil {
 		var pgErr *pgconn.PgError
