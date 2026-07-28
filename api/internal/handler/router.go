@@ -10,11 +10,12 @@ import (
 // Router holds business route dependencies.
 type Router struct {
 	restHandler *rest.Handler
+	authHandler *rest.AuthHandler
 }
 
-// New returns a Router wiring the given REST handler.
-func New(restHandler *rest.Handler) Router {
-	return Router{restHandler: restHandler}
+// New returns a Router wiring the link and auth REST handlers.
+func New(restHandler *rest.Handler, authHandler *rest.AuthHandler) Router {
+	return Router{restHandler: restHandler, authHandler: authHandler}
 }
 
 // Routes registers the service routes on r.
@@ -29,5 +30,12 @@ func (rtr Router) public(r chi.Router) {
 		r.Post("/decode", httpserver.HandlerErr(rtr.restHandler.Decode))
 		// Frontend resolves a short code here, then performs the client-side redirect.
 		r.Get("/{code}", httpserver.HandlerErr(rtr.restHandler.Resolve))
+
+		r.Route("/auth", func(r chi.Router) {
+			r.Post("/register", httpserver.HandlerErr(rtr.authHandler.Register))
+			r.Post("/login", httpserver.HandlerErr(rtr.authHandler.Login))
+			r.Post("/refresh", httpserver.HandlerErr(rtr.authHandler.Refresh))
+			r.Post("/logout", httpserver.HandlerErr(rtr.authHandler.Logout))
+		})
 	})
 }

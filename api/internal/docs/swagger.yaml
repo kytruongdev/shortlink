@@ -1,5 +1,21 @@
 basePath: /api/v1
 definitions:
+  rest.authRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  rest.authResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      user:
+        $ref: '#/definitions/rest.userResponse'
+    type: object
   rest.decodeRequest:
     properties:
       short_url:
@@ -25,6 +41,13 @@ definitions:
   rest.resolveResponse:
     properties:
       long_url:
+        type: string
+    type: object
+  rest.userResponse:
+    properties:
+      email:
+        type: string
+      id:
         type: string
     type: object
 info:
@@ -66,6 +89,104 @@ paths:
       summary: Resolve a short code
       tags:
       - links
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Verify credentials, returning an access token and setting an httpOnly
+        refresh cookie.
+      parameters:
+      - description: Email and password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/rest.authRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.authResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Log in
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      description: Revoke the presented refresh token and clear the refresh cookie.
+      responses:
+        "204":
+          description: No Content
+      summary: Log out
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      description: Read the refresh cookie, rotate it, and return a new access token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.authResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refresh the access token
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create an account, returning an access token and setting an httpOnly
+        refresh cookie.
+      parameters:
+      - description: Email and password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/rest.authRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.authResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new account
+      tags:
+      - auth
   /decode:
     post:
       consumes:
