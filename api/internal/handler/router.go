@@ -11,11 +11,12 @@ import (
 type Router struct {
 	restHandler *rest.Handler
 	authHandler *rest.AuthHandler
+	jwtSecret   []byte
 }
 
 // New returns a Router wiring the link and auth REST handlers.
-func New(restHandler *rest.Handler, authHandler *rest.AuthHandler) Router {
-	return Router{restHandler: restHandler, authHandler: authHandler}
+func New(restHandler *rest.Handler, authHandler *rest.AuthHandler, jwtSecret []byte) Router {
+	return Router{restHandler: restHandler, authHandler: authHandler, jwtSecret: jwtSecret}
 }
 
 // Routes registers the service routes on r.
@@ -26,6 +27,8 @@ func (rtr Router) Routes(r chi.Router) {
 // public registers routes that require no authentication.
 func (rtr Router) public(r chi.Router) {
 	r.Route("/api/v1", func(r chi.Router) {
+		r.Use(optionalAuth(rtr.jwtSecret))
+
 		r.Post("/encode", httpserver.HandlerErr(rtr.restHandler.Encode))
 		r.Post("/decode", httpserver.HandlerErr(rtr.restHandler.Decode))
 		// Frontend resolves a short code here, then performs the client-side redirect.

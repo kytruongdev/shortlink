@@ -50,7 +50,7 @@ func main() {
 	authCtrl := ctrlauth.New(repouser.New(pool), repotoken.New(pool), []byte(cfg.JWTSecret), cfg.AccessTokenTTL, cfg.RefreshTokenTTL)
 	authHandler := rest.NewAuth(authCtrl, cfg.CookieSecure, cfg.RefreshTokenTTL)
 
-	rtr := handler.New(restHandler, authHandler)
+	rtr := handler.New(restHandler, authHandler, []byte(cfg.JWTSecret))
 	router := httpserver.New(pool, rtr.Routes)
 
 	srv := &http.Server{
