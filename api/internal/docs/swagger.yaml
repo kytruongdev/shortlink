@@ -22,6 +22,11 @@ definitions:
       short_url:
         type: string
     type: object
+  rest.resolveResponse:
+    properties:
+      long_url:
+        type: string
+    type: object
 info:
   contact: {}
   description: 'URL shortening service: encode a long URL to a short code, decode
@@ -29,6 +34,38 @@ info:
   title: ShortLink API
   version: "1.0"
 paths:
+  /{code}:
+    get:
+      description: Resolve a short code to the original URL; the frontend uses this
+        to redirect the visitor.
+      parameters:
+      - description: Short code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.resolveResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Resolve a short code
+      tags:
+      - links
   /decode:
     post:
       consumes:

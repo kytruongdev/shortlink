@@ -27,5 +27,7 @@ func (rtr Router) public(r chi.Router) {
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Post("/encode", httpserver.HandlerErr(rtr.restHandler.Encode))
 		r.Post("/decode", httpserver.HandlerErr(rtr.restHandler.Decode))
+		// Frontend resolves a short code here, then performs the client-side redirect.
+		r.Get("/{code}", httpserver.HandlerErr(rtr.restHandler.Resolve))
 	})
 }
