@@ -8,6 +8,22 @@ packages:
       inpackage: true
     interfaces:
       Repository:
+  github.com/kytruongdev/shortlink/internal/repository/user:
+    config:
+      dir: "internal/repository/user"
+      filename: "mock_Repository.go"
+      mockname: "MockRepository"
+      inpackage: true
+    interfaces:
+      Repository:
+  github.com/kytruongdev/shortlink/internal/repository/token:
+    config:
+      dir: "internal/repository/token"
+      filename: "mock_Repository.go"
+      mockname: "MockRepository"
+      inpackage: true
+    interfaces:
+      Repository:
   github.com/kytruongdev/shortlink/internal/controller/link:
     config:
       dir: "internal/controller/link"
