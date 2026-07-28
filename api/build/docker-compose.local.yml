@@ -43,6 +43,10 @@ services:
       DATABASE_URL: "postgres://shortlink:shortlink@postgres:5432/shortlink?sslmode=disable"
       BASE_URL: "http://localhost:8080"
       LOG_LEVEL: "info"
+      JWT_SECRET: "local-dev-jwt-secret-change-me-please-0123456789"
+      ACCESS_TOKEN_TTL: "5m"
+      REFRESH_TOKEN_TTL: "168h"
+      COOKIE_SECURE: "false"
     ports:
       - "8080:8080"
 
