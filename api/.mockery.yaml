@@ -32,3 +32,11 @@ packages:
       inpackage: true
     interfaces:
       Controller:
+  github.com/kytruongdev/shortlink/internal/controller/auth:
+    config:
+      dir: "internal/controller/auth"
+      filename: "mock_Controller.go"
+      mockname: "MockController"
+      inpackage: true
+    interfaces:
+      Controller:

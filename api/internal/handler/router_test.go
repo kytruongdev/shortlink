@@ -5,11 +5,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
+	ctrlauth "github.com/kytruongdev/shortlink/internal/controller/auth"
 	ctrllink "github.com/kytruongdev/shortlink/internal/controller/link"
 	"github.com/kytruongdev/shortlink/internal/handler/rest"
 	"github.com/kytruongdev/shortlink/internal/infra/httpserver"
@@ -29,7 +31,8 @@ func TestRoutes(t *testing.T) {
 	ctrl.EXPECT().Decode(mock.Anything, code).
 		Return(model.Link{OriginalURL: longURL}, nil).Once()
 
-	srv := httpserver.New(nil, New(rest.New(ctrl, baseURL)).Routes)
+	authHandler := rest.NewAuth(ctrlauth.NewMockController(t), false, time.Hour)
+	srv := httpserver.New(nil, New(rest.New(ctrl, baseURL), authHandler).Routes)
 
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/"+code, nil)

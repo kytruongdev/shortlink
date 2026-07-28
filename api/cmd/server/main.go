@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/kytruongdev/shortlink/internal/config"
+	ctrlauth "github.com/kytruongdev/shortlink/internal/controller/auth"
 	ctrllink "github.com/kytruongdev/shortlink/internal/controller/link"
 	"github.com/kytruongdev/shortlink/internal/handler"
 	"github.com/kytruongdev/shortlink/internal/handler/rest"
@@ -16,6 +17,8 @@ import (
 	"github.com/kytruongdev/shortlink/internal/infra/db/pg"
 	"github.com/kytruongdev/shortlink/internal/infra/httpserver"
 	repolink "github.com/kytruongdev/shortlink/internal/repository/link"
+	repotoken "github.com/kytruongdev/shortlink/internal/repository/token"
+	repouser "github.com/kytruongdev/shortlink/internal/repository/user"
 
 	_ "github.com/kytruongdev/shortlink/internal/docs" // registers the OpenAPI spec served at /swagger
 )
@@ -43,7 +46,11 @@ func main() {
 	repo := repolink.New(pool)
 	ctrl := ctrllink.New(repo)
 	restHandler := rest.New(ctrl, cfg.BaseURL)
-	rtr := handler.New(restHandler)
+
+	authCtrl := ctrlauth.New(repouser.New(pool), repotoken.New(pool), []byte(cfg.JWTSecret), cfg.AccessTokenTTL, cfg.RefreshTokenTTL)
+	authHandler := rest.NewAuth(authCtrl, cfg.CookieSecure, cfg.RefreshTokenTTL)
+
+	rtr := handler.New(restHandler, authHandler)
 	router := httpserver.New(pool, rtr.Routes)
 
 	srv := &http.Server{
