@@ -118,6 +118,53 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/{code}": {
+            "get": {
+                "description": "Resolve a short code to the original URL; the frontend uses this to redirect the visitor.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "links"
+                ],
+                "summary": "Resolve a short code",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Short code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rest.resolveResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -152,6 +199,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "short_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "rest.resolveResponse": {
+            "type": "object",
+            "properties": {
+                "long_url": {
                     "type": "string"
                 }
             }
