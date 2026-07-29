@@ -1,10 +1,10 @@
 import { Sparkles } from 'lucide-react'
+import { EncodeForm } from '../components/EncodeForm'
 import { Badge } from '../components/ui/Badge'
 
-// Static hero for now; the encode form + QR arrive in the link-features commit.
 export function Home() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-20 text-center">
+    <main className="mx-auto max-w-3xl px-6 py-16 text-center">
       <Badge>
         <Sparkles size={13} /> Fast, private URL shortener
       </Badge>
@@ -17,6 +17,10 @@ export function Home() {
       <p className="mx-auto mt-4 max-w-md text-muted">
         Turn long URLs into short, shareable links in a single click.
       </p>
+
+      <div className="mt-8">
+        <EncodeForm />
+      </div>
     </main>
   )
 }
