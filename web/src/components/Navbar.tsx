@@ -1,6 +1,7 @@
 import { Link as LinkIcon } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
+import { cn } from '../lib/cn'
 import { Button } from './ui/Button'
 
 export function Navbar() {
@@ -22,12 +23,27 @@ export function Navbar() {
       <div className="flex items-center gap-2.5 text-sm">
         {status === 'authed' && user ? (
           <>
-            <span className="flex items-center gap-2 font-semibold text-ink">
+            <NavLink
+              to="/links"
+              className={({ isActive }) =>
+                cn(
+                  'rounded-lg px-3 py-2 font-medium transition',
+                  isActive ? 'text-accent' : 'text-muted hover:text-ink',
+                )
+              }
+            >
+              My links
+            </NavLink>
+            <Link
+              to="/links"
+              className="flex items-center gap-2 font-semibold text-ink"
+              title="My links"
+            >
               <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-accent to-accent-2 text-xs font-bold text-white">
                 {user.username.charAt(0).toUpperCase()}
               </span>
-              {user.username}
-            </span>
+              <span className="hidden sm:inline">{user.username}</span>
+            </Link>
             <Button variant="ghost" onClick={() => logout()}>
               Log out
             </Button>

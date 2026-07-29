@@ -8,7 +8,7 @@ export function Home() {
       <Badge>
         <Sparkles size={13} /> Fast, private URL shortener
       </Badge>
-      <h1 className="mt-6 font-serif text-5xl font-semibold tracking-tight">
+      <h1 className="mt-6 font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
         Shorten links. Keep it{' '}
         <span className="bg-gradient-to-br from-accent to-accent-2 bg-clip-text text-transparent">
           clean.
