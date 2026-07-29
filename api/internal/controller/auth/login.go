@@ -26,7 +26,7 @@ func (i *impl) Login(ctx context.Context, email, password string) (AuthResult, e
 		return AuthResult{}, apperror.Unauthorized(codeInvalidCredentials, "invalid email or password")
 	}
 
-	res, err := i.issueTokens(ctx, u.ID)
+	res, err := i.issueTokens(ctx, u)
 	if err != nil {
 		return AuthResult{}, err
 	}

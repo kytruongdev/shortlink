@@ -33,5 +33,11 @@ func (i *impl) Refresh(ctx context.Context, refreshToken string) (AuthResult, er
 	if err := i.tokens.Revoke(ctx, hash); err != nil {
 		return AuthResult{}, err
 	}
-	return i.issueTokens(ctx, stored.UserID)
+
+	// Reload the user so the reissued token carries the current username claim.
+	user, err := i.users.GetByID(ctx, stored.UserID)
+	if err != nil {
+		return AuthResult{}, err
+	}
+	return i.issueTokens(ctx, user)
 }
