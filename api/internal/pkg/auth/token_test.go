@@ -11,7 +11,10 @@ import (
 
 func TestAccessToken(t *testing.T) {
 	secret := []byte("0123456789abcdef0123456789abcdef")
-	const userID = "user-123"
+	const (
+		userID   = "user-123"
+		username = "kytd123"
+	)
 
 	tcs := map[string]struct {
 		token       func(t *testing.T) string
@@ -20,7 +23,7 @@ func TestAccessToken(t *testing.T) {
 	}{
 		"sign then parse round-trips the subject": {
 			token: func(t *testing.T) string {
-				raw, err := SignAccessToken(secret, userID, time.Minute)
+				raw, err := SignAccessToken(secret, userID, username, time.Minute)
 				require.NoError(t, err)
 				return raw
 			},
@@ -28,7 +31,7 @@ func TestAccessToken(t *testing.T) {
 		},
 		"expired token rejected": {
 			token: func(t *testing.T) string {
-				raw, err := SignAccessToken(secret, userID, -time.Minute)
+				raw, err := SignAccessToken(secret, userID, username, -time.Minute)
 				require.NoError(t, err)
 				return raw
 			},
@@ -37,7 +40,7 @@ func TestAccessToken(t *testing.T) {
 		},
 		"wrong secret rejected": {
 			token: func(t *testing.T) string {
-				raw, err := SignAccessToken(secret, userID, time.Minute)
+				raw, err := SignAccessToken(secret, userID, username, time.Minute)
 				require.NoError(t, err)
 				return raw
 			},
@@ -68,6 +71,7 @@ func TestAccessToken(t *testing.T) {
 			}
 			require.NoError(t, err)
 			assert.Equal(t, userID, claims.UserID)
+			assert.Equal(t, username, claims.Username)
 			assert.WithinDuration(t, time.Now().Add(time.Minute), claims.ExpiresAt, 5*time.Second)
 		})
 	}

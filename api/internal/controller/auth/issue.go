@@ -5,17 +5,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	pkgerrors "github.com/pkg/errors"
 
 	"github.com/kytruongdev/shortlink/internal/model"
 	pkgauth "github.com/kytruongdev/shortlink/internal/pkg/auth"
 )
 
-// issueTokens mints an access token and a rotated refresh token for userID,
-// persisting only the refresh token's hash.
-func (i *impl) issueTokens(ctx context.Context, userID uuid.UUID) (AuthResult, error) {
-	access, err := pkgauth.SignAccessToken(i.secret, userID.String(), i.accessTTL)
+// issueTokens mints an access token (carrying a display username derived from the
+// email) and a rotated refresh token, persisting only the refresh token's hash.
+func (i *impl) issueTokens(ctx context.Context, user model.User) (AuthResult, error) {
+	access, err := pkgauth.SignAccessToken(i.secret, user.ID.String(), usernameFromEmail(user.Email), i.accessTTL)
 	if err != nil {
 		return AuthResult{}, pkgerrors.WithStack(err)
 	}
@@ -26,7 +25,7 @@ func (i *impl) issueTokens(ctx context.Context, userID uuid.UUID) (AuthResult, e
 	}
 
 	if _, err := i.tokens.Create(ctx, model.RefreshToken{
-		UserID:    userID,
+		UserID:    user.ID,
 		TokenHash: hash,
 		ExpiresAt: time.Now().Add(i.refreshTTL),
 	}); err != nil {
@@ -39,4 +38,13 @@ func (i *impl) issueTokens(ctx context.Context, userID uuid.UUID) (AuthResult, e
 // normalizeEmail lowercases and trims an email so lookups and uniqueness ignore case.
 func normalizeEmail(email string) string {
 	return strings.ToLower(strings.TrimSpace(email))
+}
+
+// usernameFromEmail returns the display username: the local-part of the email.
+// Show-only, not unique, not persisted.
+func usernameFromEmail(email string) string {
+	if idx := strings.IndexByte(email, '@'); idx >= 0 {
+		return email[:idx]
+	}
+	return email
 }

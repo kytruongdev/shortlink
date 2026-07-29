@@ -83,10 +83,11 @@ func TestRegister(t *testing.T) {
 			assert.NotEqual(t, res.RefreshToken, storedHash)
 			assert.Equal(t, pkgauth.HashRefreshToken(res.RefreshToken), storedHash)
 
-			// The access token encodes the new user's id.
+			// The access token encodes the new user's id and display username (email local-part).
 			claims, err := pkgauth.ParseAccessToken(testSecret, res.AccessToken)
 			require.NoError(t, err)
 			assert.Equal(t, createdID.String(), claims.UserID)
+			assert.Equal(t, "new", claims.Username)
 		})
 	}
 }

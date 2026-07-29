@@ -30,7 +30,7 @@ func (i *impl) Register(ctx context.Context, email, password string) (AuthResult
 		return AuthResult{}, err
 	}
 
-	res, err := i.issueTokens(ctx, created.ID)
+	res, err := i.issueTokens(ctx, created)
 	if err != nil {
 		return AuthResult{}, err
 	}

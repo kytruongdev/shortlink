@@ -17,7 +17,7 @@ import (
 func TestOptionalAuth(t *testing.T) {
 	secret := []byte("test-secret-test-secret-test-secret")
 	userID := uuid.New()
-	validToken, err := pkgauth.SignAccessToken(secret, userID.String(), time.Minute)
+	validToken, err := pkgauth.SignAccessToken(secret, userID.String(), "kytd123", time.Minute)
 	require.NoError(t, err)
 
 	tcs := map[string]struct {
