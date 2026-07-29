@@ -19,3 +19,9 @@ WHERE creator_ip = $1 AND created_at >= $2;
 SELECT * FROM links
 WHERE user_id = $1
 ORDER BY created_at DESC;
+
+-- name: IncrementAndGetByCode :one
+UPDATE links
+SET click_count = click_count + 1
+WHERE code = $1
+RETURNING *;

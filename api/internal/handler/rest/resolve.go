@@ -31,7 +31,7 @@ func (h *Handler) Resolve(w http.ResponseWriter, r *http.Request) error {
 		return apperror.BadRequest(codeInvalidShortURL, "short code is required")
 	}
 
-	link, err := h.ctrl.Decode(r.Context(), code)
+	link, err := h.ctrl.Resolve(r.Context(), code)
 	if err != nil {
 		return err
 	}

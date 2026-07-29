@@ -9,10 +9,11 @@ import (
 )
 
 type linkResponse struct {
-	Code      string    `json:"code"`
-	ShortURL  string    `json:"short_url"`
-	LongURL   string    `json:"long_url"`
-	CreatedAt time.Time `json:"created_at"`
+	Code       string    `json:"code"`
+	ShortURL   string    `json:"short_url"`
+	LongURL    string    `json:"long_url"`
+	CreatedAt  time.Time `json:"created_at"`
+	ClickCount int       `json:"click_count"`
 }
 
 type listLinksResponse struct {
@@ -40,10 +41,11 @@ func (h *Handler) ListLinks(w http.ResponseWriter, r *http.Request) error {
 	out := make([]linkResponse, 0, len(links))
 	for _, l := range links {
 		out = append(out, linkResponse{
-			Code:      l.Code,
-			ShortURL:  h.baseURL + "/" + l.Code,
-			LongURL:   l.OriginalURL,
-			CreatedAt: l.CreatedAt,
+			Code:       l.Code,
+			ShortURL:   h.baseURL + "/" + l.Code,
+			LongURL:    l.OriginalURL,
+			CreatedAt:  l.CreatedAt,
+			ClickCount: l.ClickCount,
 		})
 	}
 

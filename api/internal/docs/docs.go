@@ -426,6 +426,9 @@ const docTemplate = `{
         "rest.linkResponse": {
             "type": "object",
             "properties": {
+                "click_count": {
+                    "type": "integer"
+                },
                 "code": {
                     "type": "string"
                 },

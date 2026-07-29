@@ -28,7 +28,7 @@ func TestRoutes(t *testing.T) {
 	)
 
 	ctrl := ctrllink.NewMockController(t)
-	ctrl.EXPECT().Decode(mock.Anything, code).
+	ctrl.EXPECT().Resolve(mock.Anything, code).
 		Return(model.Link{OriginalURL: longURL}, nil).Once()
 
 	authHandler := rest.NewAuth(ctrlauth.NewMockController(t), false, time.Hour)

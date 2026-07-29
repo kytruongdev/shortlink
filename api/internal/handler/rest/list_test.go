@@ -30,7 +30,7 @@ func TestListLinksHandler(t *testing.T) {
 	}{
 		"returns the user's links": {
 			links: []model.Link{
-				{Code: "code1", OriginalURL: "https://a.com", CreatedAt: created},
+				{Code: "code1", OriginalURL: "https://a.com", CreatedAt: created, ClickCount: 7},
 				{Code: "code2", OriginalURL: "https://b.com", CreatedAt: created},
 			},
 			wantCodes: []string{"code1", "code2"},
@@ -65,6 +65,7 @@ func TestListLinksHandler(t *testing.T) {
 			if len(tc.links) > 0 {
 				assert.Equal(t, baseURL+"/code1", body.Links[0].ShortURL)
 				assert.Equal(t, "https://a.com", body.Links[0].LongURL)
+				assert.Equal(t, 7, body.Links[0].ClickCount)
 			}
 		})
 	}

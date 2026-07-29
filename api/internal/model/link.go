@@ -23,4 +23,5 @@ type Link struct {
 	CreatedAt     time.Time
 	UserID        *uuid.UUID // nil for anonymous links
 	CreatorIP     *string    // set for anonymous links, for per-IP quota
+	ClickCount    int        // number of times the short link has been resolved
 }

@@ -17,6 +17,7 @@ type Link struct {
 	CreatedAt     time.Time
 	UserID        *uuid.UUID
 	CreatorIp     *string
+	ClickCount    int32
 }
 
 type RefreshToken struct {

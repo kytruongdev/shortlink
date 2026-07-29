@@ -23,6 +23,7 @@ export interface LinkItem {
   short_url: string
   long_url: string
   created_at: string
+  click_count: number
 }
 
 export interface ListLinksResponse {
