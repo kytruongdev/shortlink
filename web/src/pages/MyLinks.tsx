@@ -14,10 +14,10 @@ function formatDate(iso: string): string {
 function LinkRow({ link }: { link: LinkItem }) {
   return (
     <div className="flex items-center gap-4 rounded-2xl border border-line bg-white/75 px-4 py-3.5 backdrop-blur-sm transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/10">
-      <span className="min-w-[76px] font-mono font-semibold text-accent">{link.code}</span>
-      <span className="flex-1 truncate text-sm text-muted">{link.long_url}</span>
+      <span className="min-w-[76px] shrink-0 font-mono font-semibold text-accent">{link.code}</span>
+      <span className="min-w-0 flex-1 truncate text-sm text-muted">{link.long_url}</span>
       <span className="hidden whitespace-nowrap text-sm text-muted sm:inline">{formatDate(link.created_at)}</span>
-      <CopyButton value={link.short_url} />
+      <CopyButton value={link.short_url} className="shrink-0" />
     </div>
   )
 }

@@ -50,7 +50,7 @@ export function EncodeForm({ onCreated }: { onCreated?: () => void }) {
   return (
     <div className="mx-auto max-w-xl text-left">
       <Card className="p-2">
-        <form onSubmit={onSubmit} className="flex gap-2">
+        <form onSubmit={onSubmit} className="flex flex-col gap-2 sm:flex-row">
           <Input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
@@ -73,14 +73,14 @@ export function EncodeForm({ onCreated }: { onCreated?: () => void }) {
               href={result.short_url}
               target="_blank"
               rel="noreferrer"
-              className="truncate font-semibold text-accent"
+              className="min-w-0 truncate font-semibold text-accent"
             >
               {result.short_url}
             </a>
-            <CopyButton value={result.short_url} />
+            <CopyButton value={result.short_url} className="shrink-0" />
           </div>
           <div className="mt-2.5 flex items-center gap-3.5 rounded-xl border border-line bg-white px-3.5 py-3">
-            <QRImage value={result.short_url} />
+            <QRImage value={result.short_url} downloadName={`shortlink-${result.code}.png`} />
             <div className="text-sm text-muted">
               <span className="font-semibold text-ink">Scan to open</span>
               <br />
