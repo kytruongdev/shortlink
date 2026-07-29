@@ -38,6 +38,24 @@ definitions:
       short_url:
         type: string
     type: object
+  rest.linkResponse:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      long_url:
+        type: string
+      short_url:
+        type: string
+    type: object
+  rest.listLinksResponse:
+    properties:
+      links:
+        items:
+          $ref: '#/definitions/rest.linkResponse'
+        type: array
+    type: object
   rest.resolveResponse:
     properties:
       long_url:
@@ -246,13 +264,47 @@ paths:
             additionalProperties:
               type: string
             type: object
+        "429":
+          description: Too Many Requests
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: Internal Server Error
           schema:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Shorten a URL
       tags:
       - links
+  /links:
+    get:
+      description: Return the authenticated user's links, newest first.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.listLinksResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List my links
+      tags:
+      - links
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/kytruongdev/shortlink/internal/infra/httpserver"
 	pkgauth "github.com/kytruongdev/shortlink/internal/pkg/auth"
 	"github.com/kytruongdev/shortlink/internal/pkg/authctx"
 )
@@ -66,9 +65,8 @@ func TestRequireAuth(t *testing.T) {
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
 			called := false
-			fn := requireAuth(func(_ http.ResponseWriter, _ *http.Request) error {
+			next := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
 				called = true
-				return nil
 			})
 
 			req := httptest.NewRequest(http.MethodGet, "/api/v1/links", nil)
@@ -76,7 +74,7 @@ func TestRequireAuth(t *testing.T) {
 				req = req.WithContext(authctx.WithUser(req.Context(), uuid.New()))
 			}
 			rec := httptest.NewRecorder()
-			httpserver.HandlerErr(fn).ServeHTTP(rec, req)
+			requireAuth(next).ServeHTTP(rec, req)
 
 			assert.Equal(t, tc.wantStatus, rec.Code)
 			assert.Equal(t, tc.wantCalled, called)

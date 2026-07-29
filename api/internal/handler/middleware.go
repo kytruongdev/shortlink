@@ -29,14 +29,16 @@ func optionalAuth(secret []byte) func(http.Handler) http.Handler {
 	}
 }
 
-// requireAuth wraps a handler so it runs only for authenticated requests, else 401.
-func requireAuth(fn httpserver.HandlerFunc) httpserver.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) error {
+// requireAuth is middleware that runs the next handler only for authenticated
+// requests, responding 401 otherwise.
+func requireAuth(next http.Handler) http.Handler {
+	return httpserver.HandlerErr(func(w http.ResponseWriter, r *http.Request) error {
 		if _, ok := authctx.UserFromContext(r.Context()); !ok {
 			return apperror.Unauthorized("UNAUTHORIZED", "authentication required")
 		}
-		return fn(w, r)
-	}
+		next.ServeHTTP(w, r)
+		return nil
+	})
 }
 
 // bearerToken extracts the token from an "Authorization: Bearer <token>" header.

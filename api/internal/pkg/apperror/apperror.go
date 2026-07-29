@@ -34,6 +34,11 @@ func NotFound(code, message string) *Error { return newError(http.StatusNotFound
 // Conflict builds a 409 error.
 func Conflict(code, message string) *Error { return newError(http.StatusConflict, code, message) }
 
+// TooManyRequests builds a 429 error.
+func TooManyRequests(code, message string) *Error {
+	return newError(http.StatusTooManyRequests, code, message)
+}
+
 // Internal builds a 500 error.
 func Internal(code, message string) *Error {
 	return newError(http.StatusInternalServerError, code, message)
