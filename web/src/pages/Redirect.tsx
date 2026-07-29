@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { resolve } from '../api/links'
 import { Aurora } from '../components/ui/Aurora'
@@ -18,20 +18,14 @@ export function Redirect() {
   const [notFound, setNotFound] = useState(false)
   const [count, setCount] = useState(3)
 
-  // Resolve the code once.
+  // Resolve each code exactly once (guards against React StrictMode's double effect).
+  const resolvedCode = useRef<string | null>(null)
   useEffect(() => {
-    if (!code) return
-    let active = true
+    if (!code || resolvedCode.current === code) return
+    resolvedCode.current = code
     resolve(code)
-      .then((r) => {
-        if (active) setDest(r.long_url)
-      })
-      .catch(() => {
-        if (active) setNotFound(true)
-      })
-    return () => {
-      active = false
-    }
+      .then((r) => setDest(r.long_url))
+      .catch(() => setNotFound(true))
   }, [code])
 
   // Count down, then navigate.

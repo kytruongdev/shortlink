@@ -40,6 +40,8 @@ definitions:
     type: object
   rest.linkResponse:
     properties:
+      click_count:
+        type: integer
       code:
         type: string
       created_at:

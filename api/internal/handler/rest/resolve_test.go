@@ -34,7 +34,7 @@ func TestResolveHandler(t *testing.T) {
 		"found returns long url": {
 			code: code,
 			setup: func(m *ctrllink.MockController) {
-				m.EXPECT().Decode(mock.Anything, code).
+				m.EXPECT().Resolve(mock.Anything, code).
 					Return(model.Link{OriginalURL: longURL}, nil).Once()
 			},
 			wantStatus: http.StatusOK,
@@ -43,7 +43,7 @@ func TestResolveHandler(t *testing.T) {
 		"not found maps to 404": {
 			code: "missing",
 			setup: func(m *ctrllink.MockController) {
-				m.EXPECT().Decode(mock.Anything, "missing").
+				m.EXPECT().Resolve(mock.Anything, "missing").
 					Return(model.Link{}, apperror.NotFound("NOT_FOUND", "short url not found")).Once()
 			},
 			wantStatus: http.StatusNotFound,

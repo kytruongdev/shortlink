@@ -32,7 +32,7 @@ func (q *Queries) CountLinksByCreatorIPSince(ctx context.Context, arg CountLinks
 const createLink = `-- name: CreateLink :one
 INSERT INTO links (code, original_url, normalized_url, user_id, creator_ip)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING code, original_url, normalized_url, created_at, user_id, creator_ip
+RETURNING code, original_url, normalized_url, created_at, user_id, creator_ip, click_count
 `
 
 type CreateLinkParams struct {
@@ -59,12 +59,13 @@ func (q *Queries) CreateLink(ctx context.Context, arg CreateLinkParams) (Link, e
 		&i.CreatedAt,
 		&i.UserID,
 		&i.CreatorIp,
+		&i.ClickCount,
 	)
 	return i, err
 }
 
 const getByCode = `-- name: GetByCode :one
-SELECT code, original_url, normalized_url, created_at, user_id, creator_ip FROM links
+SELECT code, original_url, normalized_url, created_at, user_id, creator_ip, click_count FROM links
 WHERE code = $1
 `
 
@@ -78,12 +79,13 @@ func (q *Queries) GetByCode(ctx context.Context, code string) (Link, error) {
 		&i.CreatedAt,
 		&i.UserID,
 		&i.CreatorIp,
+		&i.ClickCount,
 	)
 	return i, err
 }
 
 const getByNormalizedURL = `-- name: GetByNormalizedURL :one
-SELECT code, original_url, normalized_url, created_at, user_id, creator_ip FROM links
+SELECT code, original_url, normalized_url, created_at, user_id, creator_ip, click_count FROM links
 WHERE normalized_url = $1
 `
 
@@ -97,12 +99,35 @@ func (q *Queries) GetByNormalizedURL(ctx context.Context, normalizedUrl string) 
 		&i.CreatedAt,
 		&i.UserID,
 		&i.CreatorIp,
+		&i.ClickCount,
+	)
+	return i, err
+}
+
+const incrementAndGetByCode = `-- name: IncrementAndGetByCode :one
+UPDATE links
+SET click_count = click_count + 1
+WHERE code = $1
+RETURNING code, original_url, normalized_url, created_at, user_id, creator_ip, click_count
+`
+
+func (q *Queries) IncrementAndGetByCode(ctx context.Context, code string) (Link, error) {
+	row := q.db.QueryRow(ctx, incrementAndGetByCode, code)
+	var i Link
+	err := row.Scan(
+		&i.Code,
+		&i.OriginalUrl,
+		&i.NormalizedUrl,
+		&i.CreatedAt,
+		&i.UserID,
+		&i.CreatorIp,
+		&i.ClickCount,
 	)
 	return i, err
 }
 
 const listLinksByUserID = `-- name: ListLinksByUserID :many
-SELECT code, original_url, normalized_url, created_at, user_id, creator_ip FROM links
+SELECT code, original_url, normalized_url, created_at, user_id, creator_ip, click_count FROM links
 WHERE user_id = $1
 ORDER BY created_at DESC
 `
@@ -123,6 +148,7 @@ func (q *Queries) ListLinksByUserID(ctx context.Context, userID *uuid.UUID) ([]L
 			&i.CreatedAt,
 			&i.UserID,
 			&i.CreatorIp,
+			&i.ClickCount,
 		); err != nil {
 			return nil, err
 		}

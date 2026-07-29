@@ -199,6 +199,63 @@ func (_c *MockController_ListByUser_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
+// Resolve provides a mock function with given fields: ctx, code
+func (_m *MockController) Resolve(ctx context.Context, code string) (model.Link, error) {
+	ret := _m.Called(ctx, code)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Resolve")
+	}
+
+	var r0 model.Link
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (model.Link, error)); ok {
+		return rf(ctx, code)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) model.Link); ok {
+		r0 = rf(ctx, code)
+	} else {
+		r0 = ret.Get(0).(model.Link)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, code)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockController_Resolve_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Resolve'
+type MockController_Resolve_Call struct {
+	*mock.Call
+}
+
+// Resolve is a helper method to define mock.On call
+//   - ctx context.Context
+//   - code string
+func (_e *MockController_Expecter) Resolve(ctx interface{}, code interface{}) *MockController_Resolve_Call {
+	return &MockController_Resolve_Call{Call: _e.mock.On("Resolve", ctx, code)}
+}
+
+func (_c *MockController_Resolve_Call) Run(run func(ctx context.Context, code string)) *MockController_Resolve_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockController_Resolve_Call) Return(_a0 model.Link, _a1 error) *MockController_Resolve_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockController_Resolve_Call) RunAndReturn(run func(context.Context, string) (model.Link, error)) *MockController_Resolve_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockController creates a new instance of MockController. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockController(t interface {

@@ -13,6 +13,7 @@ import (
 type Controller interface {
 	Encode(ctx context.Context, rawURL string, userID *uuid.UUID, clientIP string) (model.Link, error)
 	Decode(ctx context.Context, code string) (model.Link, error)
+	Resolve(ctx context.Context, code string) (model.Link, error)
 	ListByUser(ctx context.Context, userID uuid.UUID) ([]model.Link, error)
 }
 
