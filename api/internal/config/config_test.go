@@ -22,6 +22,7 @@ func TestLoad(t *testing.T) {
 			"ACCESS_TOKEN_TTL":  "5m",
 			"REFRESH_TOKEN_TTL": "168h",
 			"COOKIE_SECURE":     "false",
+			"ALLOWED_ORIGINS":   "http://localhost:5173",
 		}
 		for k, v := range overrides {
 			m[k] = v
@@ -38,6 +39,7 @@ func TestLoad(t *testing.T) {
 		AccessTokenTTL:  5 * time.Minute,
 		RefreshTokenTTL: 168 * time.Hour,
 		CookieSecure:    false,
+		AllowedOrigins:  []string{"http://localhost:5173"},
 	}
 
 	tcs := map[string]struct {
@@ -79,6 +81,7 @@ func TestLoad(t *testing.T) {
 		"missing REFRESH_TOKEN_TTL": {env: env(map[string]string{"REFRESH_TOKEN_TTL": ""}), wantErr: true},
 		"missing COOKIE_SECURE":     {env: env(map[string]string{"COOKIE_SECURE": ""}), wantErr: true},
 		"invalid COOKIE_SECURE":     {env: env(map[string]string{"COOKIE_SECURE": "maybe"}), wantErr: true},
+		"missing ALLOWED_ORIGINS":   {env: env(map[string]string{"ALLOWED_ORIGINS": ""}), wantErr: true},
 	}
 
 	for name, tc := range tcs {

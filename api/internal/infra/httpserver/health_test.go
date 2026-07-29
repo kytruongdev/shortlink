@@ -28,7 +28,7 @@ func TestHealthRoutes(t *testing.T) {
 
 	for name, tc := range tcs {
 		t.Run(name, func(t *testing.T) {
-			mux := New(fakePinger{tc.pingErr}, nil)
+			mux := New(fakePinger{tc.pingErr}, nil, nil)
 
 			rec := httptest.NewRecorder()
 			mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, tc.path, nil))

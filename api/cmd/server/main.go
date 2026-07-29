@@ -34,6 +34,9 @@ const (
 // @version     1.0
 // @description URL shortening service: encode a long URL to a short code, decode it back.
 // @BasePath    /api/v1
+// @securityDefinitions.apikey  BearerAuth
+// @in                          header
+// @name                        Authorization
 func main() {
 	// Composition root: build each resource here, inject downward.
 	cfg := config.MustLoad()
@@ -51,7 +54,7 @@ func main() {
 	authHandler := rest.NewAuth(authCtrl, cfg.CookieSecure, cfg.RefreshTokenTTL)
 
 	rtr := handler.New(restHandler, authHandler, []byte(cfg.JWTSecret))
-	router := httpserver.New(pool, rtr.Routes)
+	router := httpserver.New(pool, cfg.AllowedOrigins, rtr.Routes)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,

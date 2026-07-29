@@ -11,6 +11,8 @@ const (
 	ShortCodeLength = 7
 	// MaxURLLen is the maximum accepted length of an input URL.
 	MaxURLLen = 2048
+	// MaxAnonLinksPerDay caps how many links a single IP may create per day when not logged in.
+	MaxAnonLinksPerDay = 10
 )
 
 // Link is a shortened-URL mapping.

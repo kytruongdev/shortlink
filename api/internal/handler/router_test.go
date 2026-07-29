@@ -32,7 +32,7 @@ func TestRoutes(t *testing.T) {
 		Return(model.Link{OriginalURL: longURL}, nil).Once()
 
 	authHandler := rest.NewAuth(ctrlauth.NewMockController(t), false, time.Hour)
-	srv := httpserver.New(nil, New(rest.New(ctrl, baseURL), authHandler, []byte("test-secret")).Routes)
+	srv := httpserver.New(nil, nil, New(rest.New(ctrl, baseURL), authHandler, []byte("test-secret")).Routes)
 
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/"+code, nil)
@@ -43,4 +43,16 @@ func TestRoutes(t *testing.T) {
 	var got map[string]string
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
 	assert.Equal(t, longURL, got["long_url"])
+}
+
+// TestListLinksRequiresAuth verifies GET /api/v1/links is guarded by requireAuth.
+func TestListLinksRequiresAuth(t *testing.T) {
+	authHandler := rest.NewAuth(ctrlauth.NewMockController(t), false, time.Hour)
+	srv := httpserver.New(nil, nil, New(rest.New(ctrllink.NewMockController(t), "http://short.test"), authHandler, []byte("test-secret")).Routes)
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/links", nil)
+	srv.ServeHTTP(rec, req)
+
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }

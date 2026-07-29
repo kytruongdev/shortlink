@@ -47,6 +47,7 @@ services:
       ACCESS_TOKEN_TTL: "5m"
       REFRESH_TOKEN_TTL: "168h"
       COOKIE_SECURE: "false"
+      ALLOWED_ORIGINS: "http://localhost:5173"
     ports:
       - "8080:8080"
 

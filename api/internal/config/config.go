@@ -19,6 +19,7 @@ type Config struct {
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
 	CookieSecure    bool
+	AllowedOrigins  []string
 }
 
 // MustLoad loads and validates config, panicking on error. Call only from main.
@@ -76,6 +77,11 @@ func Load() (Config, error) {
 		return Config{}, err
 	}
 
+	allowedOrigins, err := requireCSVEnv("ALLOWED_ORIGINS")
+	if err != nil {
+		return Config{}, err
+	}
+
 	cfg := Config{
 		Port:            port,
 		DatabaseURL:     databaseURL,
@@ -85,6 +91,7 @@ func Load() (Config, error) {
 		AccessTokenTTL:  accessTokenTTL,
 		RefreshTokenTTL: refreshTokenTTL,
 		CookieSecure:    cookieSecure,
+		AllowedOrigins:  allowedOrigins,
 	}
 
 	if err := cfg.Validate(); err != nil {
@@ -134,6 +141,24 @@ func requireDurationEnv(key string) (time.Duration, error) {
 		return 0, fmt.Errorf("config: %s %q is not a valid duration", key, v)
 	}
 	return d, nil
+}
+
+// requireCSVEnv reads key and splits it into a non-empty list of trimmed values.
+func requireCSVEnv(key string) ([]string, error) {
+	v, err := requireEnv(key)
+	if err != nil {
+		return nil, err
+	}
+	var out []string
+	for _, p := range strings.Split(v, ",") {
+		if p = strings.TrimSpace(p); p != "" {
+			out = append(out, p)
+		}
+	}
+	if len(out) == 0 {
+		return nil, fmt.Errorf("config: %s must list at least one value", key)
+	}
+	return out, nil
 }
 
 // requireBoolEnv reads key and parses it as a bool (true/false/1/0).
