@@ -49,4 +49,6 @@ func (rtr Router) public(r chi.Router) {
 func (rtr Router) authenticated(r chi.Router) {
 	r.Use(requireAuth)
 	r.Get("/links", httpserver.HandlerErr(rtr.restHandler.ListLinks))
+	r.Patch("/links/{code}", httpserver.HandlerErr(rtr.restHandler.UpdateLink))
+	r.Delete("/links/{code}", httpserver.HandlerErr(rtr.restHandler.DeleteLink))
 }

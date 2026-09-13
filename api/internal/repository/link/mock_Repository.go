@@ -141,6 +141,54 @@ func (_c *MockRepository_Create_Call) RunAndReturn(run func(context.Context, mod
 	return _c
 }
 
+// Delete provides a mock function with given fields: ctx, code, userID
+func (_m *MockRepository) Delete(ctx context.Context, code string, userID uuid.UUID) error {
+	ret := _m.Called(ctx, code, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Delete")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, uuid.UUID) error); ok {
+		r0 = rf(ctx, code, userID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockRepository_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
+type MockRepository_Delete_Call struct {
+	*mock.Call
+}
+
+// Delete is a helper method to define mock.On call
+//   - ctx context.Context
+//   - code string
+//   - userID uuid.UUID
+func (_e *MockRepository_Expecter) Delete(ctx interface{}, code interface{}, userID interface{}) *MockRepository_Delete_Call {
+	return &MockRepository_Delete_Call{Call: _e.mock.On("Delete", ctx, code, userID)}
+}
+
+func (_c *MockRepository_Delete_Call) Run(run func(ctx context.Context, code string, userID uuid.UUID)) *MockRepository_Delete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *MockRepository_Delete_Call) Return(_a0 error) *MockRepository_Delete_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockRepository_Delete_Call) RunAndReturn(run func(context.Context, string, uuid.UUID) error) *MockRepository_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetByCode provides a mock function with given fields: ctx, code
 func (_m *MockRepository) GetByCode(ctx context.Context, code string) (model.Link, error) {
 	ret := _m.Called(ctx, code)
@@ -367,6 +415,66 @@ func (_c *MockRepository_ListByUserID_Call) Return(_a0 []model.Link, _a1 error) 
 }
 
 func (_c *MockRepository_ListByUserID_Call) RunAndReturn(run func(context.Context, uuid.UUID) ([]model.Link, error)) *MockRepository_ListByUserID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateURL provides a mock function with given fields: ctx, code, userID, original, normalized
+func (_m *MockRepository) UpdateURL(ctx context.Context, code string, userID uuid.UUID, original string, normalized string) (model.Link, error) {
+	ret := _m.Called(ctx, code, userID, original, normalized)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateURL")
+	}
+
+	var r0 model.Link
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, uuid.UUID, string, string) (model.Link, error)); ok {
+		return rf(ctx, code, userID, original, normalized)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, uuid.UUID, string, string) model.Link); ok {
+		r0 = rf(ctx, code, userID, original, normalized)
+	} else {
+		r0 = ret.Get(0).(model.Link)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, uuid.UUID, string, string) error); ok {
+		r1 = rf(ctx, code, userID, original, normalized)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockRepository_UpdateURL_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateURL'
+type MockRepository_UpdateURL_Call struct {
+	*mock.Call
+}
+
+// UpdateURL is a helper method to define mock.On call
+//   - ctx context.Context
+//   - code string
+//   - userID uuid.UUID
+//   - original string
+//   - normalized string
+func (_e *MockRepository_Expecter) UpdateURL(ctx interface{}, code interface{}, userID interface{}, original interface{}, normalized interface{}) *MockRepository_UpdateURL_Call {
+	return &MockRepository_UpdateURL_Call{Call: _e.mock.On("UpdateURL", ctx, code, userID, original, normalized)}
+}
+
+func (_c *MockRepository_UpdateURL_Call) Run(run func(ctx context.Context, code string, userID uuid.UUID, original string, normalized string)) *MockRepository_UpdateURL_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(uuid.UUID), args[3].(string), args[4].(string))
+	})
+	return _c
+}
+
+func (_c *MockRepository_UpdateURL_Call) Return(_a0 model.Link, _a1 error) *MockRepository_UpdateURL_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockRepository_UpdateURL_Call) RunAndReturn(run func(context.Context, string, uuid.UUID, string, string) (model.Link, error)) *MockRepository_UpdateURL_Call {
 	_c.Call.Return(run)
 	return _c
 }

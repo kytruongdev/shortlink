@@ -5,4 +5,5 @@ const (
 	codeGenerationFailed = "CODE_GENERATION_FAILED"
 	codeNotFound         = "NOT_FOUND"
 	codeQuotaExceeded    = "QUOTA_EXCEEDED"
+	codeURLTaken         = "URL_TAKEN"
 )

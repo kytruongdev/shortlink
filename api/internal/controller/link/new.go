@@ -15,6 +15,8 @@ type Controller interface {
 	Decode(ctx context.Context, code string) (model.Link, error)
 	Resolve(ctx context.Context, code string) (model.Link, error)
 	ListByUser(ctx context.Context, userID uuid.UUID) ([]model.Link, error)
+	Delete(ctx context.Context, code string, userID uuid.UUID) error
+	UpdateURL(ctx context.Context, code string, userID uuid.UUID, rawURL string) (model.Link, error)
 }
 
 type impl struct {

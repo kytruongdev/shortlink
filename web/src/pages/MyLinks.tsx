@@ -3,27 +3,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { listLinks } from '../api/links'
 import type { LinkItem } from '../api/types'
 import { EncodeForm } from '../components/EncodeForm'
+import { LinkRow } from '../components/LinkRow'
 import { Badge } from '../components/ui/Badge'
-import { CopyButton } from '../components/ui/CopyButton'
 import { Spinner } from '../components/ui/Spinner'
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
-
-function LinkRow({ link }: { link: LinkItem }) {
-  return (
-    <div className="flex items-center gap-4 rounded-2xl border border-line bg-white/75 px-4 py-3.5 backdrop-blur-sm transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/10">
-      <span className="min-w-[76px] shrink-0 font-mono font-semibold text-accent">{link.code}</span>
-      <span className="min-w-0 flex-1 truncate text-sm text-muted">{link.long_url}</span>
-      <span className="whitespace-nowrap text-sm font-medium text-ink">
-        {link.click_count} {link.click_count === 1 ? 'click' : 'clicks'}
-      </span>
-      <span className="hidden whitespace-nowrap text-sm text-muted sm:inline">{formatDate(link.created_at)}</span>
-      <CopyButton value={link.short_url} className="shrink-0" />
-    </div>
-  )
-}
 
 function EmptyState() {
   return (
@@ -46,6 +28,12 @@ export function MyLinks() {
   useEffect(() => {
     load()
   }, [load])
+
+  const onChange = (updated: LinkItem) =>
+    setLinks((prev) => prev?.map((l) => (l.code === updated.code ? updated : l)) ?? null)
+
+  const onRemove = (code: string) =>
+    setLinks((prev) => prev?.filter((l) => l.code !== code) ?? null)
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-14">
@@ -71,7 +59,12 @@ export function MyLinks() {
         ) : (
           <div className="mt-4 space-y-2.5">
             {links.map((link) => (
-              <LinkRow key={link.code} link={link} />
+              <LinkRow
+                key={link.code}
+                link={link}
+                onChange={onChange}
+                onRemove={() => onRemove(link.code)}
+              />
             ))}
           </div>
         )}

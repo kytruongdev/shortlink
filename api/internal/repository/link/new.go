@@ -18,6 +18,8 @@ type Repository interface {
 	CountByCreatorIPSince(ctx context.Context, ip string, since time.Time) (int, error)
 	ListByUserID(ctx context.Context, userID uuid.UUID) ([]model.Link, error)
 	IncrementAndGetByCode(ctx context.Context, code string) (model.Link, error)
+	Delete(ctx context.Context, code string, userID uuid.UUID) error
+	UpdateURL(ctx context.Context, code string, userID uuid.UUID, original, normalized string) (model.Link, error)
 }
 
 type impl struct {
