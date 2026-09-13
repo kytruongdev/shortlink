@@ -314,6 +314,130 @@ const docTemplate = `{
                 }
             }
         },
+        "/links/{code}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "links"
+                ],
+                "summary": "Delete a link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Short code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "links"
+                ],
+                "summary": "Edit a link's destination",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Short code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New long URL",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rest.updateLinkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rest.linkResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/{code}": {
             "get": {
                 "description": "Resolve a short code to the original URL; the frontend uses this to redirect the visitor.",
@@ -455,6 +579,14 @@ const docTemplate = `{
             }
         },
         "rest.resolveResponse": {
+            "type": "object",
+            "properties": {
+                "long_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "rest.updateLinkRequest": {
             "type": "object",
             "properties": {
                 "long_url": {

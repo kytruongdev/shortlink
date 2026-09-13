@@ -25,3 +25,13 @@ UPDATE links
 SET click_count = click_count + 1
 WHERE code = $1
 RETURNING *;
+
+-- name: DeleteLink :execrows
+DELETE FROM links
+WHERE code = $1 AND user_id = $2;
+
+-- name: UpdateLinkURL :one
+UPDATE links
+SET original_url = $2, normalized_url = $3
+WHERE code = $1 AND user_id = $4
+RETURNING *;

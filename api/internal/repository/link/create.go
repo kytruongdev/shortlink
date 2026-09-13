@@ -13,8 +13,6 @@ import (
 
 // Create inserts a link, returning ErrConflict on a unique-constraint violation.
 func (i *impl) Create(ctx context.Context, link model.Link) (model.Link, error) {
-	const uniqueViolationCode = "23505"
-
 	row, err := i.q.CreateLink(ctx, sqlc.CreateLinkParams{
 		Code:          link.Code,
 		OriginalUrl:   link.OriginalURL,

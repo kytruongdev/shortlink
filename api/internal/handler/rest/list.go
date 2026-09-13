@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/kytruongdev/shortlink/internal/infra/httpserver"
+	"github.com/kytruongdev/shortlink/internal/model"
 	"github.com/kytruongdev/shortlink/internal/pkg/authctx"
 )
 
@@ -18,6 +19,16 @@ type linkResponse struct {
 
 type listLinksResponse struct {
 	Links []linkResponse `json:"links"`
+}
+
+func (h *Handler) toLinkResponse(l model.Link) linkResponse {
+	return linkResponse{
+		Code:       l.Code,
+		ShortURL:   h.baseURL + "/" + l.Code,
+		LongURL:    l.OriginalURL,
+		CreatedAt:  l.CreatedAt,
+		ClickCount: l.ClickCount,
+	}
 }
 
 // ListLinks handles GET /api/v1/links: the current user's links, newest first.
@@ -40,13 +51,7 @@ func (h *Handler) ListLinks(w http.ResponseWriter, r *http.Request) error {
 
 	out := make([]linkResponse, 0, len(links))
 	for _, l := range links {
-		out = append(out, linkResponse{
-			Code:       l.Code,
-			ShortURL:   h.baseURL + "/" + l.Code,
-			LongURL:    l.OriginalURL,
-			CreatedAt:  l.CreatedAt,
-			ClickCount: l.ClickCount,
-		})
+		out = append(out, h.toLinkResponse(l))
 	}
 
 	return httpserver.WriteJSON(w, http.StatusOK, listLinksResponse{Links: out})
