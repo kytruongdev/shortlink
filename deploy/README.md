@@ -19,6 +19,9 @@ http://<host>/            → frontend (nginx) → static SPA
 http://<host>/api/*       → frontend (nginx) → proxy → backend (Go :8080)
 http://<host>/swagger/*   → frontend (nginx) → proxy → backend
                              backend → postgres (internal only)
+
+http://<host>:3000        → grafana  ← prometheus ← node_exporter (host)
+http://<host>:9090        → prometheus                postgres_exporter (DB)
 ```
 
 - `frontend` — `web/Dockerfile`: builds the Vite app (`VITE_API_BASE_URL=/api/v1`,
@@ -27,6 +30,8 @@ http://<host>/swagger/*   → frontend (nginx) → proxy → backend
 - `backend` — `api/Dockerfile`: the Go API. Internal network only.
 - `postgres` — data store. Internal only; data in the `pgdata` volume.
 - `migrate` — applies `api/data/migrations` once, then exits.
+- `node_exporter` / `postgres_exporter` — expose host hardware and PostgreSQL metrics.
+- `prometheus` (`:9090`) — scrapes the exporters. `grafana` (`:3000`) — dashboards.
 
 ## Components
 
@@ -56,6 +61,7 @@ cp deploy/.env.prod.example deploy/.env.prod
 | `JWT_SECRET` | ≥ 32 bytes. |
 | `ACCESS_TOKEN_TTL` / `REFRESH_TOKEN_TTL` | e.g. `5m` / `168h`. |
 | `COOKIE_SECURE` | `false` over plain HTTP; `true` once HTTPS is enabled. |
+| `GRAFANA_ADMIN_USER` / `GRAFANA_ADMIN_PASSWORD` | Grafana login. |
 
 ## Run locally (Docker Desktop)
 
@@ -75,6 +81,21 @@ docker compose -p shortlink-prod -f deploy/compose/docker-compose.prod.yml down
 ```
 Wipe data too: add `-v`.
 
+## Monitoring
+
+Prometheus scrapes two exporters and Grafana visualizes them, covering the two
+things the app runs on: **hardware** and the **database**.
+
+- **`node_exporter`** — host CPU, memory, disk, network.
+- **`postgres_exporter`** — PostgreSQL up/down, connections, database size, transactions.
+- **`prometheus`** — <http://localhost:9090> (targets at `/targets`).
+- **`grafana`** — <http://localhost:3000> (login with `GRAFANA_ADMIN_*`). Two
+  dashboards are provisioned automatically: **Node Exporter Full** (hardware) and
+  **PostgreSQL Database**. The Prometheus datasource is provisioned as default.
+
+Everything is provisioned from `deploy/prometheus/` and `deploy/grafana/`, so the
+stack comes up with working dashboards and no manual clicking.
+
 ## Known limitation — anonymous quota behind the proxy
 
 The backend derives the client IP for the anonymous daily quota from the TCP
@@ -87,7 +108,7 @@ trusted proxy — a small, deliberate backend change left out of scope here.
 
 ## Roadmap (next phases)
 
-- **P1** Monitoring: Prometheus + Grafana + node_exporter (host) + postgres_exporter (DB).
+- **P1** Monitoring: Prometheus + Grafana + node_exporter (host) + postgres_exporter (DB). ✅ done
 - **P2** CI: GitHub Actions builds and pushes the backend/frontend images to GHCR.
 - **P3** Terraform: provision the AWS EC2 VPS.
 - **P4** Ansible: install Docker and deploy this stack on the VPS.
