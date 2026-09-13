@@ -1,0 +1,74 @@
+# Production stack for ShortLink (single VPS).
+#
+# Local test (Docker Desktop):
+#   cp deploy/.env.prod.example deploy/.env.prod   # then edit secrets
+#   docker compose -p shortlink-prod --env-file deploy/.env.prod \
+#       -f deploy/compose/docker-compose.prod.yml up -d --build
+#   open http://localhost
+#
+# On the VPS the images are pulled from GHCR instead of built (see deploy/ansible).
+# Only the frontend publishes a port; the backend and database stay on the
+# internal network and are reached through nginx (single origin).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  migrate:
+    image: migrate/migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ../../api/data/migrations:/migrations
+    command: ["-path", "/migrations", "-database", "${DATABASE_URL}", "up"]
+
+  backend:
+    image: ghcr.io/kytruongdev/shortlink-api:latest
+    build:
+      context: ../../api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      PORT: "8080"
+      DATABASE_URL: ${DATABASE_URL}
+      BASE_URL: ${BASE_URL}
+      LOG_LEVEL: ${LOG_LEVEL}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_TTL: ${ACCESS_TOKEN_TTL}
+      REFRESH_TOKEN_TTL: ${REFRESH_TOKEN_TTL}
+      COOKIE_SECURE: ${COOKIE_SECURE}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+
+  frontend:
+    image: ghcr.io/kytruongdev/shortlink-web:latest
+    build:
+      context: ../../web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api/v1
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  pgdata:
