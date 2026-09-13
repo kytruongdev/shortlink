@@ -6,6 +6,8 @@ package sqlc
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Link struct {
@@ -13,4 +15,23 @@ type Link struct {
 	OriginalUrl   string
 	NormalizedUrl string
 	CreatedAt     time.Time
+	UserID        *uuid.UUID
+	CreatorIp     *string
+	ClickCount    int32
+}
+
+type RefreshToken struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	TokenHash string
+	ExpiresAt time.Time
+	RevokedAt *time.Time
+	CreatedAt time.Time
+}
+
+type User struct {
+	ID           uuid.UUID
+	Email        string
+	PasswordHash string
+	CreatedAt    time.Time
 }

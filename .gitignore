@@ -1,2 +1,7 @@
 .DS_STORE
 .idea
+
+# Local working & design docs — kept on disk, out of the repo by policy.
+# Anchored with a leading slash so nested tracked dirs (api/internal/docs) are unaffected.
+/docs/
+/documents/

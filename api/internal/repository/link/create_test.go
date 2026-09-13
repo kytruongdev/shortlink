@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -14,6 +15,8 @@ import (
 )
 
 func TestCreate(t *testing.T) {
+	ownerID := uuid.MustParse(testfixture.SeededUserID)
+
 	tcs := map[string]struct {
 		fixture string
 		given   model.Link
@@ -21,6 +24,10 @@ func TestCreate(t *testing.T) {
 	}{
 		"inserts link and sets created_at": {
 			given: model.Link{Code: "newcode", OriginalURL: "https://x.com/a", NormalizedURL: "https://x.com/a"},
+		},
+		"inserts link with owner": {
+			fixture: "testfixture/user.sql",
+			given:   model.Link{Code: "owned", OriginalURL: "https://o.com", NormalizedURL: "https://o.com", UserID: &ownerID},
 		},
 		"duplicate code returns ErrConflict": {
 			fixture: "testfixture/links.sql",
@@ -49,6 +56,10 @@ func TestCreate(t *testing.T) {
 				require.NoError(t, err)
 				assert.Equal(t, tc.given.Code, got.Code)
 				assert.False(t, got.CreatedAt.IsZero())
+				if tc.given.UserID != nil {
+					require.NotNil(t, got.UserID)
+					assert.Equal(t, *tc.given.UserID, *got.UserID)
+				}
 			})
 		})
 	}
