@@ -3,12 +3,16 @@ package rest
 import (
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"strings"
+
+	"github.com/google/uuid"
 
 	"github.com/kytruongdev/shortlink/internal/infra/httpserver"
 	"github.com/kytruongdev/shortlink/internal/model"
 	"github.com/kytruongdev/shortlink/internal/pkg/apperror"
+	"github.com/kytruongdev/shortlink/internal/pkg/authctx"
 	"github.com/kytruongdev/shortlink/internal/pkg/urlshortener"
 )
 
@@ -28,8 +32,10 @@ type encodeResponse struct {
 // @Accept       json
 // @Produce      json
 // @Param        request  body      encodeRequest  true  "URL to shorten"
+// @Security     BearerAuth
 // @Success      200      {object}  encodeResponse
 // @Failure      400      {object}  map[string]string
+// @Failure      429      {object}  map[string]string
 // @Failure      500      {object}  map[string]string
 // @Router       /encode  [post]
 func (h *Handler) Encode(w http.ResponseWriter, r *http.Request) error {
@@ -51,7 +57,12 @@ func (h *Handler) Encode(w http.ResponseWriter, r *http.Request) error {
 		return apperror.BadRequest(codeInvalidURL, "invalid url")
 	}
 
-	link, err := h.ctrl.Encode(r.Context(), longURL)
+	var userID *uuid.UUID
+	if id, ok := authctx.UserFromContext(r.Context()); ok {
+		userID = &id
+	}
+
+	link, err := h.ctrl.Encode(r.Context(), longURL, userID, clientIP(r))
 	if err != nil {
 		return err
 	}
@@ -62,4 +73,13 @@ func (h *Handler) Encode(w http.ResponseWriter, r *http.Request) error {
 		ShortURL: h.baseURL + "/" + link.Code,
 		Code:     link.Code,
 	})
+}
+
+// clientIP returns the caller's IP from RemoteAddr, without the port.
+func clientIP(r *http.Request) string {
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr
+	}
+	return host
 }

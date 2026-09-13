@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/kytruongdev/shortlink/internal/config"
+	ctrlauth "github.com/kytruongdev/shortlink/internal/controller/auth"
 	ctrllink "github.com/kytruongdev/shortlink/internal/controller/link"
 	"github.com/kytruongdev/shortlink/internal/handler"
 	"github.com/kytruongdev/shortlink/internal/handler/rest"
@@ -16,6 +17,8 @@ import (
 	"github.com/kytruongdev/shortlink/internal/infra/db/pg"
 	"github.com/kytruongdev/shortlink/internal/infra/httpserver"
 	repolink "github.com/kytruongdev/shortlink/internal/repository/link"
+	repotoken "github.com/kytruongdev/shortlink/internal/repository/token"
+	repouser "github.com/kytruongdev/shortlink/internal/repository/user"
 
 	_ "github.com/kytruongdev/shortlink/internal/docs" // registers the OpenAPI spec served at /swagger
 )
@@ -31,6 +34,9 @@ const (
 // @version     1.0
 // @description URL shortening service: encode a long URL to a short code, decode it back.
 // @BasePath    /api/v1
+// @securityDefinitions.apikey  BearerAuth
+// @in                          header
+// @name                        Authorization
 func main() {
 	// Composition root: build each resource here, inject downward.
 	cfg := config.MustLoad()
@@ -43,8 +49,12 @@ func main() {
 	repo := repolink.New(pool)
 	ctrl := ctrllink.New(repo)
 	restHandler := rest.New(ctrl, cfg.BaseURL)
-	rtr := handler.New(restHandler)
-	router := httpserver.New(pool, rtr.Routes)
+
+	authCtrl := ctrlauth.New(repouser.New(pool), repotoken.New(pool), []byte(cfg.JWTSecret), cfg.AccessTokenTTL, cfg.RefreshTokenTTL)
+	authHandler := rest.NewAuth(authCtrl, cfg.CookieSecure, cfg.RefreshTokenTTL)
+
+	rtr := handler.New(restHandler, authHandler, []byte(cfg.JWTSecret))
+	router := httpserver.New(pool, cfg.AllowedOrigins, rtr.Routes)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,

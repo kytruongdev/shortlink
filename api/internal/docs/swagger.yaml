@@ -1,5 +1,21 @@
 basePath: /api/v1
 definitions:
+  rest.authRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  rest.authResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      user:
+        $ref: '#/definitions/rest.userResponse'
+    type: object
   rest.decodeRequest:
     properties:
       short_url:
@@ -22,6 +38,43 @@ definitions:
       short_url:
         type: string
     type: object
+  rest.linkResponse:
+    properties:
+      click_count:
+        type: integer
+      code:
+        type: string
+      created_at:
+        type: string
+      long_url:
+        type: string
+      short_url:
+        type: string
+    type: object
+  rest.listLinksResponse:
+    properties:
+      links:
+        items:
+          $ref: '#/definitions/rest.linkResponse'
+        type: array
+    type: object
+  rest.resolveResponse:
+    properties:
+      long_url:
+        type: string
+    type: object
+  rest.updateLinkRequest:
+    properties:
+      long_url:
+        type: string
+    type: object
+  rest.userResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+    type: object
 info:
   contact: {}
   description: 'URL shortening service: encode a long URL to a short code, decode
@@ -29,6 +82,136 @@ info:
   title: ShortLink API
   version: "1.0"
 paths:
+  /{code}:
+    get:
+      description: Resolve a short code to the original URL; the frontend uses this
+        to redirect the visitor.
+      parameters:
+      - description: Short code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.resolveResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Resolve a short code
+      tags:
+      - links
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Verify credentials, returning an access token and setting an httpOnly
+        refresh cookie.
+      parameters:
+      - description: Email and password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/rest.authRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.authResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Log in
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      description: Revoke the presented refresh token and clear the refresh cookie.
+      responses:
+        "204":
+          description: No Content
+      summary: Log out
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      description: Read the refresh cookie, rotate it, and return a new access token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.authResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refresh the access token
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create an account, returning an access token and setting an httpOnly
+        refresh cookie.
+      parameters:
+      - description: Email and password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/rest.authRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.authResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new account
+      tags:
+      - auth
   /decode:
     post:
       consumes:
@@ -88,13 +271,126 @@ paths:
             additionalProperties:
               type: string
             type: object
+        "429":
+          description: Too Many Requests
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: Internal Server Error
           schema:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Shorten a URL
       tags:
       - links
+  /links:
+    get:
+      description: Return the authenticated user's links, newest first.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.listLinksResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List my links
+      tags:
+      - links
+  /links/{code}:
+    delete:
+      parameters:
+      - description: Short code
+        in: path
+        name: code
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a link
+      tags:
+      - links
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Short code
+        in: path
+        name: code
+        required: true
+        type: string
+      - description: New long URL
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/rest.updateLinkRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.linkResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Edit a link's destination
+      tags:
+      - links
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

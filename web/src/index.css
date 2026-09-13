@@ -1,0 +1,80 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
+
+  --color-accent: #7c3aed;
+  --color-accent-2: #60a5fa;
+  --color-ink: #1a1523;
+  --color-muted: #6e6a76;
+  --color-line: #eceaf1;
+  --color-danger: #dc2626;
+  --color-canvas: #fbfbfd;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Aurora background blobs */
+.aurora-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.5;
+}
+.aurora-b1 {
+  width: 520px;
+  height: 520px;
+  top: -150px;
+  left: 38%;
+  background: radial-gradient(circle at 30% 30%, #a78bfa, transparent 62%);
+  animation: aurora-drift-1 20s ease-in-out infinite alternate;
+}
+.aurora-b2 {
+  width: 480px;
+  height: 480px;
+  top: -110px;
+  left: 58%;
+  background: radial-gradient(circle at 40% 40%, #60a5fa, transparent 62%);
+  animation: aurora-drift-2 24s ease-in-out infinite alternate;
+}
+.aurora-b3 {
+  width: 420px;
+  height: 420px;
+  top: -60px;
+  left: 20%;
+  background: radial-gradient(circle at 50% 50%, #f0abfc, transparent 62%);
+  animation: aurora-drift-3 28s ease-in-out infinite alternate;
+}
+@keyframes aurora-drift-1 {
+  to {
+    transform: translate(-60px, 40px) scale(1.15);
+  }
+}
+@keyframes aurora-drift-2 {
+  to {
+    transform: translate(50px, 60px) scale(1.1);
+  }
+}
+@keyframes aurora-drift-3 {
+  to {
+    transform: translate(30px, 50px) scale(1.2);
+  }
+}

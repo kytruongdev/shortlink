@@ -2,6 +2,9 @@ package link
 
 import (
 	"context"
+	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/kytruongdev/shortlink/internal/model"
 	"github.com/kytruongdev/shortlink/internal/repository/sqlc"
@@ -12,6 +15,11 @@ type Repository interface {
 	Create(ctx context.Context, link model.Link) (model.Link, error)
 	GetByCode(ctx context.Context, code string) (model.Link, error)
 	GetByNormalizedURL(ctx context.Context, normalizedURL string) (model.Link, error)
+	CountByCreatorIPSince(ctx context.Context, ip string, since time.Time) (int, error)
+	ListByUserID(ctx context.Context, userID uuid.UUID) ([]model.Link, error)
+	IncrementAndGetByCode(ctx context.Context, code string) (model.Link, error)
+	Delete(ctx context.Context, code string, userID uuid.UUID) error
+	UpdateURL(ctx context.Context, code string, userID uuid.UUID, original, normalized string) (model.Link, error)
 }
 
 type impl struct {
@@ -29,5 +37,8 @@ func toModel(l sqlc.Link) model.Link {
 		OriginalURL:   l.OriginalUrl,
 		NormalizedURL: l.NormalizedUrl,
 		CreatedAt:     l.CreatedAt,
+		UserID:        l.UserID,
+		CreatorIP:     l.CreatorIp,
+		ClickCount:    int(l.ClickCount),
 	}
 }

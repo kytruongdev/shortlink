@@ -7,34 +7,83 @@ package sqlc
 
 import (
 	"context"
+	"time"
+
+	"github.com/google/uuid"
 )
 
+const countLinksByCreatorIPSince = `-- name: CountLinksByCreatorIPSince :one
+SELECT count(*) FROM links
+WHERE creator_ip = $1 AND created_at >= $2
+`
+
+type CountLinksByCreatorIPSinceParams struct {
+	CreatorIp *string
+	CreatedAt time.Time
+}
+
+func (q *Queries) CountLinksByCreatorIPSince(ctx context.Context, arg CountLinksByCreatorIPSinceParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countLinksByCreatorIPSince, arg.CreatorIp, arg.CreatedAt)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createLink = `-- name: CreateLink :one
-INSERT INTO links (code, original_url, normalized_url)
-VALUES ($1, $2, $3)
-RETURNING code, original_url, normalized_url, created_at
+INSERT INTO links (code, original_url, normalized_url, user_id, creator_ip)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING code, original_url, normalized_url, created_at, user_id, creator_ip, click_count
 `
 
 type CreateLinkParams struct {
 	Code          string
 	OriginalUrl   string
 	NormalizedUrl string
+	UserID        *uuid.UUID
+	CreatorIp     *string
 }
 
 func (q *Queries) CreateLink(ctx context.Context, arg CreateLinkParams) (Link, error) {
-	row := q.db.QueryRow(ctx, createLink, arg.Code, arg.OriginalUrl, arg.NormalizedUrl)
+	row := q.db.QueryRow(ctx, createLink,
+		arg.Code,
+		arg.OriginalUrl,
+		arg.NormalizedUrl,
+		arg.UserID,
+		arg.CreatorIp,
+	)
 	var i Link
 	err := row.Scan(
 		&i.Code,
 		&i.OriginalUrl,
 		&i.NormalizedUrl,
 		&i.CreatedAt,
+		&i.UserID,
+		&i.CreatorIp,
+		&i.ClickCount,
 	)
 	return i, err
 }
 
+const deleteLink = `-- name: DeleteLink :execrows
+DELETE FROM links
+WHERE code = $1 AND user_id = $2
+`
+
+type DeleteLinkParams struct {
+	Code   string
+	UserID *uuid.UUID
+}
+
+func (q *Queries) DeleteLink(ctx context.Context, arg DeleteLinkParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteLink, arg.Code, arg.UserID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const getByCode = `-- name: GetByCode :one
-SELECT code, original_url, normalized_url, created_at FROM links
+SELECT code, original_url, normalized_url, created_at, user_id, creator_ip, click_count FROM links
 WHERE code = $1
 `
 
@@ -46,12 +95,15 @@ func (q *Queries) GetByCode(ctx context.Context, code string) (Link, error) {
 		&i.OriginalUrl,
 		&i.NormalizedUrl,
 		&i.CreatedAt,
+		&i.UserID,
+		&i.CreatorIp,
+		&i.ClickCount,
 	)
 	return i, err
 }
 
 const getByNormalizedURL = `-- name: GetByNormalizedURL :one
-SELECT code, original_url, normalized_url, created_at FROM links
+SELECT code, original_url, normalized_url, created_at, user_id, creator_ip, click_count FROM links
 WHERE normalized_url = $1
 `
 
@@ -63,6 +115,99 @@ func (q *Queries) GetByNormalizedURL(ctx context.Context, normalizedUrl string) 
 		&i.OriginalUrl,
 		&i.NormalizedUrl,
 		&i.CreatedAt,
+		&i.UserID,
+		&i.CreatorIp,
+		&i.ClickCount,
+	)
+	return i, err
+}
+
+const incrementAndGetByCode = `-- name: IncrementAndGetByCode :one
+UPDATE links
+SET click_count = click_count + 1
+WHERE code = $1
+RETURNING code, original_url, normalized_url, created_at, user_id, creator_ip, click_count
+`
+
+func (q *Queries) IncrementAndGetByCode(ctx context.Context, code string) (Link, error) {
+	row := q.db.QueryRow(ctx, incrementAndGetByCode, code)
+	var i Link
+	err := row.Scan(
+		&i.Code,
+		&i.OriginalUrl,
+		&i.NormalizedUrl,
+		&i.CreatedAt,
+		&i.UserID,
+		&i.CreatorIp,
+		&i.ClickCount,
+	)
+	return i, err
+}
+
+const listLinksByUserID = `-- name: ListLinksByUserID :many
+SELECT code, original_url, normalized_url, created_at, user_id, creator_ip, click_count FROM links
+WHERE user_id = $1
+ORDER BY created_at DESC
+`
+
+func (q *Queries) ListLinksByUserID(ctx context.Context, userID *uuid.UUID) ([]Link, error) {
+	rows, err := q.db.Query(ctx, listLinksByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Link
+	for rows.Next() {
+		var i Link
+		if err := rows.Scan(
+			&i.Code,
+			&i.OriginalUrl,
+			&i.NormalizedUrl,
+			&i.CreatedAt,
+			&i.UserID,
+			&i.CreatorIp,
+			&i.ClickCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateLinkURL = `-- name: UpdateLinkURL :one
+UPDATE links
+SET original_url = $2, normalized_url = $3
+WHERE code = $1 AND user_id = $4
+RETURNING code, original_url, normalized_url, created_at, user_id, creator_ip, click_count
+`
+
+type UpdateLinkURLParams struct {
+	Code          string
+	OriginalUrl   string
+	NormalizedUrl string
+	UserID        *uuid.UUID
+}
+
+func (q *Queries) UpdateLinkURL(ctx context.Context, arg UpdateLinkURLParams) (Link, error) {
+	row := q.db.QueryRow(ctx, updateLinkURL,
+		arg.Code,
+		arg.OriginalUrl,
+		arg.NormalizedUrl,
+		arg.UserID,
+	)
+	var i Link
+	err := row.Scan(
+		&i.Code,
+		&i.OriginalUrl,
+		&i.NormalizedUrl,
+		&i.CreatedAt,
+		&i.UserID,
+		&i.CreatorIp,
+		&i.ClickCount,
 	)
 	return i, err
 }

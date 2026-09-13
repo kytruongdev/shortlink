@@ -23,8 +23,21 @@ func newError(status int, code, message string) *Error {
 // BadRequest builds a 400 error.
 func BadRequest(code, message string) *Error { return newError(http.StatusBadRequest, code, message) }
 
+// Unauthorized builds a 401 error.
+func Unauthorized(code, message string) *Error {
+	return newError(http.StatusUnauthorized, code, message)
+}
+
 // NotFound builds a 404 error.
 func NotFound(code, message string) *Error { return newError(http.StatusNotFound, code, message) }
+
+// Conflict builds a 409 error.
+func Conflict(code, message string) *Error { return newError(http.StatusConflict, code, message) }
+
+// TooManyRequests builds a 429 error.
+func TooManyRequests(code, message string) *Error {
+	return newError(http.StatusTooManyRequests, code, message)
+}
 
 // Internal builds a 500 error.
 func Internal(code, message string) *Error {

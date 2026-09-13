@@ -7,14 +7,22 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
 const requestTimeout = 5 * time.Second
 
 // New builds the root router: middleware, health probes, then service routes (nil if none).
-func New(readinessDB Pinger, registerRoutes func(chi.Router)) *chi.Mux {
+func New(readinessDB Pinger, allowedOrigins []string, registerRoutes func(chi.Router)) *chi.Mux {
 	r := chi.NewRouter()
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   allowedOrigins,
+		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete, http.MethodOptions},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
 	r.Use(middleware.RequestID)
 	r.Use(requestLogger())
 	r.Use(middleware.Recoverer)
