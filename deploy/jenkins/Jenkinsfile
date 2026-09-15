@@ -1,0 +1,35 @@
+// CD pipeline: refresh the repo on the host, pull the latest images from GHCR,
+// redeploy the stack, and smoke-test it. Runs on the droplet where Jenkins has
+// the Docker socket and /opt/shortlink mounted.
+pipeline {
+  agent any
+
+  environment {
+    APP_DIR = '/opt/shortlink'
+    COMPOSE = 'docker compose -p shortlink-prod --env-file .env.prod -f compose/docker-compose.prod.yml'
+    APP_URL = 'http://host.docker.internal'
+  }
+
+  stages {
+    stage('Refresh repo') {
+      steps {
+        sh 'git -C "$APP_DIR" pull --ff-only || true'
+      }
+    }
+    stage('Pull images') {
+      steps {
+        sh 'cd "$APP_DIR/deploy" && $COMPOSE pull'
+      }
+    }
+    stage('Deploy') {
+      steps {
+        sh 'cd "$APP_DIR/deploy" && $COMPOSE up -d'
+      }
+    }
+    stage('Smoke test') {
+      steps {
+        sh 'curl -fsS -o /dev/null -w "app responded: HTTP %{http_code}\\n" "$APP_URL/"'
+      }
+    }
+  }
+}
