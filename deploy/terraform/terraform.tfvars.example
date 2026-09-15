@@ -1,0 +1,9 @@
+# Optional overrides. Copy to terraform.tfvars to change defaults.
+# The DigitalOcean token is NOT set here — export it as an env var instead:
+#   export DIGITALOCEAN_TOKEN=dop_v1_xxx
+
+region       = "sgp1"
+droplet_size = "s-2vcpu-4gb"
+
+# Lock SSH to your own IP in real use, e.g. "203.0.113.4/32".
+allowed_ssh_cidr = "0.0.0.0/0"
