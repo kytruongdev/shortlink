@@ -1,0 +1,90 @@
+---
+# Install Docker on the droplet and deploy the ShortLink stack.
+# Run: ansible-playbook playbook.yml
+- name: Provision and deploy ShortLink
+  hosts: shortlink
+  become: true
+  vars_files:
+    - vars.yml
+  vars:
+    app_dir: /opt/shortlink
+    repo_url: https://github.com/kytruongdev/shortlink.git
+    repo_version: master
+    compose: docker compose -p shortlink-prod --env-file .env.prod -f compose/docker-compose.prod.yml
+
+  tasks:
+    - name: Install base packages
+      ansible.builtin.apt:
+        name: [ca-certificates, curl, git]
+        state: present
+        update_cache: true
+
+    - name: Create Docker apt keyring dir
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+
+    - name: Add Docker GPG key
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: "0644"
+
+    - name: Add Docker apt repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        filename: docker
+        state: present
+
+    - name: Install Docker Engine and Compose plugin
+      ansible.builtin.apt:
+        name: [docker-ce, docker-ce-cli, containerd.io, docker-compose-plugin]
+        state: present
+        update_cache: true
+
+    - name: Ensure Docker is running and enabled
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Clone/update the repository
+      ansible.builtin.git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
+        version: "{{ repo_version }}"
+        force: true
+
+    - name: Render production env file
+      ansible.builtin.template:
+        src: templates/env.prod.j2
+        dest: "{{ app_dir }}/deploy/.env.prod"
+        mode: "0600"
+
+    # Only needed if the GHCR images are private (set ghcr_pat in vars.yml).
+    - name: Log in to GHCR (private images)
+      ansible.builtin.command:
+        cmd: docker login ghcr.io -u {{ ghcr_user }} --password-stdin
+        stdin: "{{ ghcr_pat }}"
+      when: ghcr_pat | default('') | length > 0
+      no_log: true
+
+    - name: Pull images
+      ansible.builtin.command:
+        cmd: "{{ compose }} pull"
+        chdir: "{{ app_dir }}/deploy"
+
+    - name: Start the stack
+      ansible.builtin.command:
+        cmd: "{{ compose }} up -d"
+        chdir: "{{ app_dir }}/deploy"
+
+    - name: Wait for the frontend to answer on port 80
+      ansible.builtin.uri:
+        url: http://localhost/
+        status_code: 200
+      register: health
+      retries: 20
+      delay: 5
+      until: health.status == 200
