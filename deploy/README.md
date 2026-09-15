@@ -108,6 +108,30 @@ things the app runs on: **hardware** and the **database**.
 Everything is provisioned from `deploy/prometheus/` and `deploy/grafana/`, so the
 stack comes up with working dashboards and no manual clicking.
 
+## Provisioning the VPS (Terraform)
+
+`deploy/terraform/` creates the DigitalOcean droplet that runs the stack: a
+`s-2vcpu-4gb` droplet (`sgp1`), the deploy SSH key, and a firewall (22/80/443
+plus 3000/9090 for Grafana/Prometheus).
+
+```bash
+# 1. Create a deploy SSH key once (if you don't have one):
+ssh-keygen -t ed25519 -f ~/.ssh/shortlink_deploy -N ""
+
+# 2. Provide the DigitalOcean API token via env (never commit it):
+export DIGITALOCEAN_TOKEN=dop_v1_xxx
+
+# 3. Provision:
+cd deploy/terraform
+terraform init
+terraform apply          # prints droplet_ip and an ssh_command output
+```
+
+The token is read from `DIGITALOCEAN_TOKEN`, so it stays out of every file.
+State (`terraform.tfstate`) and the provider cache (`.terraform/`) are gitignored;
+`.terraform.lock.hcl` is committed for reproducible provider versions. Tear the
+VPS down with `terraform destroy` when not demoing to conserve credit.
+
 ## Known limitation — anonymous quota behind the proxy
 
 The backend derives the client IP for the anonymous daily quota from the TCP
@@ -122,7 +146,7 @@ trusted proxy — a small, deliberate backend change left out of scope here.
 
 - **P1** Monitoring: Prometheus + Grafana + node_exporter (host) + postgres_exporter (DB). ✅ done
 - **P2** CI: GitHub Actions builds and pushes the backend/frontend images to GHCR. ✅ done
-- **P3** Terraform: provision the AWS EC2 VPS.
+- **P3** Terraform: provision the DigitalOcean droplet. ✅ config ready (apply needs the API token)
 - **P4** Ansible: install Docker and deploy this stack on the VPS.
 - **P5** Jenkins: continuous deployment (pull image + run Ansible).
 - **P6** Domain + TLS (bonus).

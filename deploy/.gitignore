@@ -2,8 +2,8 @@
 .env.prod
 *.env.prod
 
-# Terraform (added in Phase 3)
-**/.terraform/*
+# Terraform (added in Phase 3) — keep .terraform.lock.hcl (committed for reproducible providers)
+**/.terraform/
 *.tfstate
 *.tfstate.*
 *.tfvars
