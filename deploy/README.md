@@ -42,6 +42,18 @@ http://<host>:9090        → prometheus                postgres_exporter (DB)
 | `../web/Dockerfile`, `../web/nginx.conf` | Frontend image + single-origin proxy. |
 | `../api/Dockerfile` | Backend image. |
 
+## Images & CI
+
+`.github/workflows/build-push.yml` builds the backend (`api/`) and frontend
+(`web/`) images and, on pushes to `master`, publishes them to GHCR:
+
+- `ghcr.io/kytruongdev/shortlink-api` · `ghcr.io/kytruongdev/shortlink-web`
+- tags: `latest` and `sha-<commit>`.
+
+Pull requests build the images only (to validate the Dockerfiles), without
+pushing. Locally the compose file builds the same images on the fly with
+`--build`; on the VPS they are pulled from GHCR.
+
 ## Configuration
 
 Copy the template and fill in real values:
@@ -109,7 +121,7 @@ trusted proxy — a small, deliberate backend change left out of scope here.
 ## Roadmap (next phases)
 
 - **P1** Monitoring: Prometheus + Grafana + node_exporter (host) + postgres_exporter (DB). ✅ done
-- **P2** CI: GitHub Actions builds and pushes the backend/frontend images to GHCR.
+- **P2** CI: GitHub Actions builds and pushes the backend/frontend images to GHCR. ✅ done
 - **P3** Terraform: provision the AWS EC2 VPS.
 - **P4** Ansible: install Docker and deploy this stack on the VPS.
 - **P5** Jenkins: continuous deployment (pull image + run Ansible).
