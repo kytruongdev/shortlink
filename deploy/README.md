@@ -132,6 +132,24 @@ State (`terraform.tfstate`) and the provider cache (`.terraform/`) are gitignore
 `.terraform.lock.hcl` is committed for reproducible provider versions. Tear the
 VPS down with `terraform destroy` when not demoing to conserve credit.
 
+## Deploying with Ansible
+
+`deploy/ansible/` installs Docker on the droplet and deploys the stack.
+
+```bash
+cd deploy/ansible
+cp vars.yml.example vars.yml              # set real secrets (gitignored)
+echo -e "[shortlink]\n<DROPLET_IP>" > inventory.ini   # or from terraform output
+ansible-playbook playbook.yml
+```
+
+The playbook: installs Docker + the Compose plugin, clones this repo to
+`/opt/shortlink`, renders `.env.prod` (with `BASE_URL=http://<droplet_ip>`),
+pulls the images from GHCR, starts the stack, and waits for the app to answer.
+`inventory.ini` and `vars.yml` are gitignored (host + secrets); commit only the
+`.example` files. Images must be public on GHCR, or set `ghcr_pat` (a
+`read:packages` token) in `vars.yml` to pull private images.
+
 ## Known limitation — anonymous quota behind the proxy
 
 The backend derives the client IP for the anonymous daily quota from the TCP
@@ -147,6 +165,6 @@ trusted proxy — a small, deliberate backend change left out of scope here.
 - **P1** Monitoring: Prometheus + Grafana + node_exporter (host) + postgres_exporter (DB). ✅ done
 - **P2** CI: GitHub Actions builds and pushes the backend/frontend images to GHCR. ✅ done
 - **P3** Terraform: provision the DigitalOcean droplet. ✅ config ready (apply needs the API token)
-- **P4** Ansible: install Docker and deploy this stack on the VPS.
+- **P4** Ansible: install Docker and deploy this stack on the VPS. ✅ done
 - **P5** Jenkins: continuous deployment (pull image + run Ansible).
 - **P6** Domain + TLS (bonus).

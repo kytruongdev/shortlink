@@ -1,0 +1,3 @@
+[shortlink]
+# Replace with the droplet IP (from: terraform -chdir=../terraform output -raw droplet_ip)
+YOUR_DROPLET_IP
