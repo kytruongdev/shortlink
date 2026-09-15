@@ -6,6 +6,9 @@ jwt_secret: change-me-to-at-least-32-random-bytes-0123456789
 grafana_admin_user: admin
 grafana_admin_password: change-me-grafana-admin
 
+jenkins_admin_id: admin
+jenkins_admin_password: change-me-jenkins-admin
+
 # Optional: to pull private GHCR images set a GitHub PAT with read:packages.
 # Leave empty if the images are public.
 ghcr_user: kytruongdev

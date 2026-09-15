@@ -150,6 +150,32 @@ pulls the images from GHCR, starts the stack, and waits for the app to answer.
 `.example` files. Images must be public on GHCR, or set `ghcr_pat` (a
 `read:packages` token) in `vars.yml` to pull private images.
 
+## Continuous deployment (Jenkins)
+
+`deploy/jenkins/` runs Jenkins on the droplet and defines the CD pipeline. While
+GitHub Actions builds and pushes images (CI), Jenkins pulls them and redeploys (CD).
+
+- **`Dockerfile`** — Jenkins LTS + Docker CLI + Compose plugin; plugins baked in
+  (`plugins.txt`); setup wizard skipped.
+- **`casc.yaml`** — Configuration-as-Code: admin user (from env) and a
+  `shortlink-deploy` pipeline job created automatically (no manual clicking),
+  reading `deploy/jenkins/Jenkinsfile` from the repo.
+- **`Jenkinsfile`** — the pipeline: refresh repo → `docker compose pull` (latest
+  images from GHCR) → `up -d` → smoke test.
+- **`docker-compose.jenkins.yml`** — runs Jenkins with the Docker socket and
+  `/opt/shortlink` mounted so the pipeline can redeploy the stack; UI on `:8080`.
+
+Deploy it with Ansible (after `playbook.yml`):
+
+```bash
+cd deploy/ansible && ansible-playbook jenkins.yml
+```
+
+Then open `http://<droplet_ip>:8080`, log in with the Jenkins admin credentials
+(`jenkins_admin_*` in `vars.yml`), and run the **shortlink-deploy** job — it pulls
+the newest images and redeploys. `DEPLOY_BRANCH` (default `master`) selects which
+branch the pipeline uses.
+
 ## Known limitation — anonymous quota behind the proxy
 
 The backend derives the client IP for the anonymous daily quota from the TCP
@@ -166,5 +192,5 @@ trusted proxy — a small, deliberate backend change left out of scope here.
 - **P2** CI: GitHub Actions builds and pushes the backend/frontend images to GHCR. ✅ done
 - **P3** Terraform: provision the DigitalOcean droplet. ✅ config ready (apply needs the API token)
 - **P4** Ansible: install Docker and deploy this stack on the VPS. ✅ done
-- **P5** Jenkins: continuous deployment (pull image + run Ansible).
+- **P5** Jenkins: continuous deployment (pull images + redeploy). ✅ done
 - **P6** Domain + TLS (bonus).

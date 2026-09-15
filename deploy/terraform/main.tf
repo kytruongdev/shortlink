@@ -46,6 +46,12 @@ resource "digitalocean_firewall" "app" {
     port_range       = "9090"
     source_addresses = ["0.0.0.0/0", "::/0"]
   }
+  # Jenkins UI (CD demo).
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "8080"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  }
 
   # Allow all outbound.
   outbound_rule {
