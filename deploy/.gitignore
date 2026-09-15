@@ -10,5 +10,7 @@
 !*.tfvars.example
 crash.log
 
-# Ansible (added in Phase 4)
+# Ansible (added in Phase 4) — keep the .example files
 *.retry
+ansible/inventory.ini
+ansible/vars.yml
