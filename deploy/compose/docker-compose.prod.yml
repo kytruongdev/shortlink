@@ -67,8 +67,20 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
+
+  # --- Reverse proxy with automatic HTTPS (Let's Encrypt) ---
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - frontend
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ../caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
 
   # --- Monitoring: hardware (node_exporter) + database (postgres_exporter) ---
   node_exporter:
@@ -125,3 +137,5 @@ volumes:
   pgdata:
   promdata:
   grafanadata:
+  caddy_data:
+  caddy_config:

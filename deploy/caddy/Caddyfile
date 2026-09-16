@@ -1,0 +1,5 @@
+# Automatic HTTPS (Let's Encrypt) in front of the app. Caddy terminates TLS and
+# reverse-proxies to the frontend, which serves the SPA and proxies /api.
+shortlink.kyletruong.xyz {
+    reverse_proxy frontend:80
+}

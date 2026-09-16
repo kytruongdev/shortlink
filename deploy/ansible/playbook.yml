@@ -80,11 +80,12 @@
         cmd: "{{ compose }} up -d"
         chdir: "{{ app_dir }}/deploy"
 
-    - name: Wait for the frontend to answer on port 80
+    - name: Wait for the app to answer
       ansible.builtin.uri:
-        url: http://localhost/
+        url: "{{ health_url | default('http://localhost/') }}"
         status_code: 200
+        validate_certs: false
       register: health
-      retries: 20
+      retries: 30
       delay: 5
       until: health.status == 200
