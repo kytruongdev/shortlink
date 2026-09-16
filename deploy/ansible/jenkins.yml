@@ -1,0 +1,39 @@
+---
+# Deploy Jenkins (continuous deployment) on the droplet.
+# Run after playbook.yml: ansible-playbook jenkins.yml
+- name: Deploy Jenkins
+  hosts: shortlink
+  become: true
+  vars_files:
+    - vars.yml
+  vars:
+    app_dir: /opt/shortlink
+    repo_version: master
+
+  tasks:
+    - name: Refresh the repository
+      ansible.builtin.git:
+        repo: https://github.com/kytruongdev/shortlink.git
+        dest: "{{ app_dir }}"
+        version: "{{ repo_version }}"
+        force: true
+
+    - name: Render Jenkins env file
+      ansible.builtin.template:
+        src: templates/env.jenkins.j2
+        dest: "{{ app_dir }}/deploy/jenkins/.env.jenkins"
+        mode: "0600"
+
+    - name: Build and start Jenkins
+      ansible.builtin.command:
+        cmd: docker compose --env-file .env.jenkins -f docker-compose.jenkins.yml up -d --build
+        chdir: "{{ app_dir }}/deploy/jenkins"
+
+    - name: Wait for Jenkins to be ready
+      ansible.builtin.uri:
+        url: http://localhost:8080/login
+        status_code: 200
+      register: jenkins_up
+      retries: 40
+      delay: 5
+      until: jenkins_up.status == 200

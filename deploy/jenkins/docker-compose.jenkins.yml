@@ -1,0 +1,27 @@
+# Jenkins for continuous deployment, run on the droplet.
+#   cd /opt/shortlink/deploy/jenkins
+#   docker compose --env-file .env.jenkins -f docker-compose.jenkins.yml up -d --build
+#
+# Runs as root and mounts the Docker socket so the pipeline can (re)deploy the
+# app stack; /opt/shortlink is mounted so it can reach the compose files.
+services:
+  jenkins:
+    build: .
+    image: shortlink-jenkins:latest
+    user: root
+    restart: unless-stopped
+    environment:
+      JENKINS_ADMIN_ID: ${JENKINS_ADMIN_ID}
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD}
+      DEPLOY_BRANCH: ${DEPLOY_BRANCH:-master}
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/shortlink:/opt/shortlink
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8080:8080"
+
+volumes:
+  jenkins_home:
