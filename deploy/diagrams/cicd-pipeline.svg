@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 470" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a2" markerWidth="9" markerHeight="9" refX="7.5" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#5b6472"/>
+    </marker>
+    <style>
+      .t{fill:#1f2733;font-size:13px;font-weight:600;text-anchor:middle;}
+      .s{fill:#5b6472;font-size:11px;text-anchor:middle;}
+      .lbl{fill:#5b6472;font-size:10.5px;text-anchor:middle;}
+      .edge{stroke:#5b6472;stroke-width:1.7;fill:none;}
+      .title{fill:#111827;font-size:19px;font-weight:700;text-anchor:middle;}
+      .ztext{fill:#7a8699;font-size:12px;font-weight:700;}
+      .zone{fill:#f6f8fb;stroke:#c3ccd8;stroke-width:1.4;stroke-dasharray:6 5;}
+      .badge{fill:#3b82f6;}
+      .pbadge{fill:#7b42bc;}
+      .bnum{fill:#fff;font-size:11px;font-weight:700;text-anchor:middle;}
+    </style>
+  </defs>
+
+  <text x="500" y="30" class="title">CI/CD &amp; provisioning pipeline</text>
+
+  <!-- Continuous CI/CD lane -->
+  <text x="26" y="74" class="ztext">Continuous CI/CD — on every push to master</text>
+
+  <rect x="20" y="88" width="118" height="54" rx="10" fill="#eef2f7" stroke="#57606a"/>
+  <text x="79" y="111" class="t">Developer</text>
+  <text x="79" y="128" class="s">git push</text>
+
+  <rect x="192" y="88" width="170" height="54" rx="10" fill="#e7f0fd" stroke="#3b82f6"/>
+  <text x="277" y="111" class="t">GitHub Actions</text>
+  <text x="277" y="128" class="s">test · build image</text>
+
+  <rect x="416" y="88" width="130" height="54" rx="10" fill="#f1ecfb" stroke="#8b5cf6"/>
+  <text x="481" y="111" class="t">GHCR</text>
+  <text x="481" y="128" class="s">image registry</text>
+
+  <rect x="600" y="88" width="150" height="54" rx="10" fill="#fdeaea" stroke="#dc4b4b"/>
+  <text x="675" y="111" class="t">Jenkins (CD)</text>
+  <text x="675" y="128" class="s">on the VPS</text>
+
+  <line x1="138" y1="115" x2="190" y2="115" class="edge" marker-end="url(#a2)"/>
+  <circle cx="164" cy="115" r="10" class="badge"/><text x="164" y="119" class="bnum">1</text>
+  <line x1="362" y1="115" x2="414" y2="115" class="edge" marker-end="url(#a2)"/>
+  <circle cx="388" cy="115" r="10" class="badge"/><text x="388" y="119" class="bnum">2</text>
+  <text x="388" y="98" class="lbl">push image</text>
+  <line x1="546" y1="115" x2="598" y2="115" class="edge" marker-end="url(#a2)"/>
+  <circle cx="572" cy="115" r="10" class="badge"/><text x="572" y="119" class="bnum">3</text>
+  <text x="572" y="98" class="lbl">pull</text>
+
+  <!-- Jenkins down to VPS -->
+  <line x1="675" y1="142" x2="675" y2="300" class="edge" marker-end="url(#a2)"/>
+  <circle cx="675" cy="221" r="10" class="badge"/><text x="675" y="225" class="bnum">4</text>
+  <text x="742" y="218" class="lbl">redeploy</text>
+  <text x="742" y="232" class="lbl">(pull + up -d)</text>
+
+  <!-- VPS box (single, no internal redraw) -->
+  <rect x="470" y="302" width="410" height="86" rx="12" class="zone"/>
+  <text x="675" y="336" class="t">Production VPS</text>
+  <text x="675" y="356" class="s">Docker Compose stack — see runtime architecture</text>
+  <text x="675" y="374" class="s">served at https://&lt;domain&gt;</text>
+
+  <!-- One-time provisioning lane -->
+  <text x="26" y="250" class="ztext">One-time provisioning (bootstrap)</text>
+
+  <rect x="20" y="266" width="150" height="52" rx="10" fill="#f1ecfb" stroke="#7b42bc"/>
+  <text x="95" y="289" class="t">Terraform</text>
+  <text x="95" y="306" class="s">create infrastructure</text>
+
+  <rect x="20" y="336" width="150" height="52" rx="10" fill="#fdeaea" stroke="#c62828"/>
+  <text x="95" y="359" class="t">Ansible</text>
+  <text x="95" y="376" class="s">configure + deploy</text>
+
+  <line x1="170" y1="292" x2="468" y2="330" class="edge" marker-end="url(#a2)"/>
+  <circle cx="300" cy="299" r="10" class="pbadge"/><text x="300" y="303" class="bnum">A</text>
+  <text x="330" y="292" class="lbl">droplet · firewall · SSH key</text>
+  <line x1="170" y1="362" x2="468" y2="356" class="edge" marker-end="url(#a2)"/>
+  <circle cx="300" cy="360" r="10" class="pbadge"/><text x="300" y="364" class="bnum">B</text>
+  <text x="330" y="380" class="lbl">install Docker · deploy · TLS</text>
+</svg>
