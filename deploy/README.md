@@ -176,6 +176,21 @@ Then open `http://<droplet_ip>:8080`, log in with the Jenkins admin credentials
 the newest images and redeploys. `DEPLOY_BRANCH` (default `master`) selects which
 branch the pipeline uses.
 
+## Domain + HTTPS (Caddy)
+
+`deploy/caddy/` puts Caddy in front of the app for automatic HTTPS. Caddy
+terminates TLS (Let's Encrypt) and reverse-proxies to the frontend.
+
+1. Point a DNS **A record** at the droplet IP (e.g., `shortlink.example.xyz → <ip>`).
+2. In `deploy/ansible/vars.yml`, set `public_url: https://shortlink.example.xyz`
+   and `cookie_secure: "true"`, and set the domain in `deploy/caddy/Caddyfile`.
+3. Redeploy: `ansible-playbook playbook.yml`. Caddy obtains the certificate on
+   first start (ports 80/443 must be open — they are in the Terraform firewall).
+
+The frontend no longer publishes port 80 directly; Caddy fronts it on 80/443.
+`BASE_URL`/`ALLOWED_ORIGINS` become the https URL and `COOKIE_SECURE=true`, so
+refresh cookies are sent only over TLS.
+
 ## Known limitation — anonymous quota behind the proxy
 
 The backend derives the client IP for the anonymous daily quota from the TCP
@@ -193,4 +208,4 @@ trusted proxy — a small, deliberate backend change left out of scope here.
 - **P3** Terraform: provision the DigitalOcean droplet. ✅ config ready (apply needs the API token)
 - **P4** Ansible: install Docker and deploy this stack on the VPS. ✅ done
 - **P5** Jenkins: continuous deployment (pull images + redeploy). ✅ done
-- **P6** Domain + TLS (bonus).
+- **P6** Domain + TLS (Caddy, Let's Encrypt). ✅ done
