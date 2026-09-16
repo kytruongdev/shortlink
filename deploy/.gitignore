@@ -14,3 +14,5 @@ crash.log
 *.retry
 ansible/inventory.ini
 ansible/vars.yml
+ansible/.env.jenkins
+jenkins/.env.jenkins

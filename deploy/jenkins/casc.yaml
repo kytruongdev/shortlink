@@ -1,0 +1,30 @@
+jenkins:
+  systemMessage: "ShortLink — continuous deployment"
+  numExecutors: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "${JENKINS_ADMIN_ID}"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+jobs:
+  - script: |
+      pipelineJob('shortlink-deploy') {
+        description('Pull the latest images from GHCR and redeploy the stack.')
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote { url('https://github.com/kytruongdev/shortlink.git') }
+                branches("${DEPLOY_BRANCH:-master}")
+              }
+              scriptPath('deploy/jenkins/Jenkinsfile')
+            }
+            lightweight(true)
+          }
+        }
+      }
